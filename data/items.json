@@ -1,0 +1,17 @@
+{
+ "field_blade":{"name":"Field blade","slot":"weapon","attack":2,"price":20,"unlock":0,"description":"A dependable starting blade."},
+ "copper_sabre":{"name":"Copper sabre","slot":"weapon","attack":7,"price":65,"unlock":0,"description":"A keen edge. +7 attack."},
+ "warden_spear":{"name":"Warden spear","slot":"weapon","attack":13,"price":180,"unlock":1,"description":"A relic hunter's reach. +13 attack."},
+ "starsteel":{"name":"Starsteel glaive","slot":"weapon","attack":24,"price":650,"unlock":3,"description":"Forged from fallen light. +24 attack."},
+ "trail_coat":{"name":"Trail coat","slot":"armour","defence":1,"price":16,"unlock":0,"description":"Light travel clothing."},
+ "ring_vest":{"name":"Ring vest","slot":"armour","defence":5,"price":60,"unlock":0,"description":"Linked copper rings. +5 defence."},
+ "warden_mail":{"name":"Warden mail","slot":"armour","defence":10,"price":170,"unlock":1,"description":"Layered plates. +10 defence."},
+ "moonplate":{"name":"Moonplate","slot":"armour","defence":18,"price":580,"unlock":3,"description":"A rare reflective alloy. +18 defence."},
+ "salve":{"name":"Moss salve","slot":"supply","heal":45,"price":12,"unlock":0,"description":"Restore 45 HP. Usable in battle."},
+ "tonic":{"name":"Bright tonic","slot":"supply","mana":12,"price":22,"unlock":0,"description":"Restore 12 MP."},
+ "remedy":{"name":"Clearleaf","slot":"supply","cure":true,"price":10,"unlock":0,"description":"Remove poison."},
+ "heartfruit":{"name":"Heartfruit","slot":"supply","heal":110,"price":45,"unlock":1,"description":"Restore 110 HP."},
+ "glowstone":{"name":"Glowstone","slot":"material","price":30,"description":"Softly luminous mineral. Sell or keep for future crafting."},
+ "emberglass":{"name":"Emberglass","slot":"material","price":65,"description":"Warm crystalline glass."},
+ "moon_pearl":{"name":"Moon pearl","slot":"material","price":130,"description":"A prized deep grotto treasure."}
+}

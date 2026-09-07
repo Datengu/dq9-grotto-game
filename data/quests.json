@@ -1,0 +1,8 @@
+[
+ {"id":"first_light","title":"A light below the hill","category":"Discovery","description":"The surveyor has left a newly charted entrance. Accept the commission to receive your first map, then investigate it at your own pace.","event":"boss","target":1,"requires":"","gold":80,"map_on_accept":true,"map_reward":false},
+ {"id":"deep_steps","title":"Three floors down","category":"Survey","description":"Reach the third floor of any grotto. Old maps count too. Return here with your findings for another chart.","event":"depth","target":3,"requires":"","gold":50,"map_reward":true},
+ {"id":"field_notes","title":"Teeth in the dark","category":"Hunt","description":"Defeat five wandering monsters while this commission is active.","event":"monster","target":5,"requires":"","gold":100,"map_reward":false},
+ {"id":"treasure_notes","title":"What the stone keeps","category":"Treasure","description":"Open three grotto chests. Chests replenish on a new expedition; their positions and ranks stay fixed.","event":"chest","target":3,"requires":"first_light","gold":120,"map_reward":true},
+ {"id":"deep_survey","title":"Beyond the familiar","category":"Survey","description":"Reach floor six. Compare your maps and seek a deeper site.","event":"depth","target":6,"requires":"first_light","gold":200,"map_reward":true},
+ {"id":"keepers","title":"A keeper's collection","category":"Hunt","description":"Defeat three grotto bosses after accepting this commission. Revisiting an old favourite is welcome.","event":"boss","target":3,"requires":"first_light","gold":220,"map_reward":true}
+]

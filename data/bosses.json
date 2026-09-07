@@ -1,0 +1,14 @@
+[
+ {"name":"The Bellroot Warden","shape":"golem","color":"b7c394","ability":"brace","lore":"A patient keeper, grown around an ancient bell."},
+ {"name":"The Copper Matron","shape":"beetle","color":"d4a179","ability":"venom","lore":"Her shell bears the scratches of forgotten caravans."},
+ {"name":"The Hollow Antler","shape":"wolf","color":"b4a9d5","ability":"spark","lore":"A quiet hunter beneath the stone."},
+ {"name":"The Kiln Regent","shape":"golem","color":"dc9979","ability":"spark","lore":"The last guardian of a buried furnace."},
+ {"name":"The Salt Archivist","shape":"moth","color":"97c6ce","ability":"venom","lore":"A keeper of memories washed from the world."},
+ {"name":"The Glass Pilgrim","shape":"golem","color":"afd2ca","ability":"brace","lore":"Its long journey ended beneath the earth."},
+ {"name":"The Thorn Astronomer","shape":"beetle","color":"bdabd8","ability":"venom","lore":"It traces constellations in the roots."},
+ {"name":"The Drowned Crown","shape":"wolf","color":"8baaca","ability":"spark","lore":"An old promise given teeth."},
+ {"name":"The Cinder Cantor","shape":"moth","color":"eac78c","ability":"spark","lore":"Its wings sing of a sunless sky."},
+ {"name":"The Pale Architect","shape":"golem","color":"cad4df","ability":"brace","lore":"It still builds for a vanished city."},
+ {"name":"The Night Orchard","shape":"beetle","color":"b9a0c5","ability":"venom","lore":"A thousand roots share one hunger."},
+ {"name":"The Last Meridian","shape":"moth","color":"e0c89b","ability":"spark","lore":"The dark folds around its wings."}
+]

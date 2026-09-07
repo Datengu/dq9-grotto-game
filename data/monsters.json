@@ -1,0 +1,7 @@
+{
+ "Cavern":[{"name":"Pebbleback","shape":"beetle","color":"a7b885","ability":"brace","material":"glowstone"},{"name":"Rootfang","shape":"wolf","color":"caa583","ability":"venom","material":"glowstone"},{"name":"Lantern moth","shape":"moth","color":"d1d58b","ability":"spark","speed_bonus":3,"material":"glowstone"}],
+ "Ruins":[{"name":"Tilekeeper","shape":"golem","color":"91b5b5","ability":"brace","hp_bonus":6,"material":"glowstone"},{"name":"Bellwing","shape":"moth","color":"c9a986","ability":"spark","material":"glowstone"},{"name":"Ink prowler","shape":"wolf","color":"b098ba","ability":"venom","material":"glowstone"}],
+ "Ember":[{"name":"Cinder tick","shape":"beetle","color":"e99969","ability":"venom","material":"emberglass"},{"name":"Kiln hound","shape":"wolf","color":"d4b09a","ability":"spark","material":"emberglass"},{"name":"Ash lantern","shape":"moth","color":"f0cc77","ability":"spark","material":"emberglass"}],
+ "Tidal":[{"name":"Reed snapper","shape":"beetle","color":"87bcaf","ability":"brace","material":"moon_pearl"},{"name":"Brine runner","shape":"wolf","color":"8fafca","ability":"venom","material":"moon_pearl"},{"name":"Pearlwing","shape":"moth","color":"d5c5d3","ability":"spark","material":"moon_pearl"}],
+ "Frost":[{"name":"Rime beetle","shape":"beetle","color":"beded8","ability":"brace","material":"glowstone"},{"name":"Hush wolf","shape":"wolf","color":"abbcd6","ability":"venom","material":"moon_pearl"},{"name":"Aurora wisp","shape":"moth","color":"baa7d9","ability":"spark","material":"moon_pearl"}]
+}

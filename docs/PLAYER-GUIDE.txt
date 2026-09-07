@@ -1,0 +1,39 @@
+LANTERN ATLAS - v0.1
+
+Run LanternAtlas.exe. This is an offline standalone Windows game.
+
+WASD / arrows: walk      E: interact
+B: treasure atlas       I: satchel / equip gear
+J: commission journal   Esc: close     F1: help
+Battle: 1 Attack, 2 Spark, 3 Mend, 4 Guard, 5 Flee.
+
+FIRST EXPEDITION
+1. Walk north from the fountain to the bulletin board. Press E.
+2. Accept 'A light below the hill' to receive your first permanent map.
+3. Accept the other two commissions too.
+4. Enter Brass & Blade, approach the counter and buy a copper sabre.
+5. Press I and equip it. The inn offers free rest; the item shop sells salves.
+6. Press B, select your chart, and begin the expedition.
+7. Walk into visible monsters to battle. E uses stairs and opens chests.
+8. Gold stairs descend; blue stairs ascend. Chests begin on floor three.
+9. Reach the keeper chamber after floor three. Defeat it for another map.
+10. Return home, rest, and turn in commissions at the physical board.
+
+Your old maps never disappear. Revisit them to find the same layouts and
+chest ranks. Contents, monsters and keepers reset on each new expedition.
+Use favourites and notes to remember useful maps. The optional seed desk
+lets you add experimental charts by seed + final quality or share code.
+
+Guard reduces damage, blocks poison and restores 3 MP. Mend restores HP.
+Clearleaf cures poison. Bosses cannot be fled, but you may retreat from
+exploration at any time using the Return to Bellwether button.
+
+SAVING
+Progress autosaves, with a Save progress button as well. Close the window
+normally to save. Loading starts in town and keeps progression and loot.
+Save folder: %APPDATA%\Lantern Atlas\
+Files: atlas-save.json and atlas-save.json.bak (previous valid save).
+Do not run two copies against the same save at once.
+
+Original placeholder world/content and geometry; no Dragon Quest assets.
+Godot 4.6.3 is distributed under the accompanying license notices.

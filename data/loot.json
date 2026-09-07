@@ -1,0 +1,12 @@
+{
+ "1":[["salve",45,1],["gold",30,24],["remedy",15,1],["glowstone",10,1]],
+ "2":[["salve",30,2],["gold",30,40],["tonic",25,1],["glowstone",15,1]],
+ "3":[["tonic",30,2],["gold",30,65],["glowstone",30,2],["copper_sabre",10,1]],
+ "4":[["heartfruit",30,1],["gold",30,90],["emberglass",30,1],["ring_vest",10,1]],
+ "5":[["heartfruit",25,2],["gold",35,120],["emberglass",30,2],["warden_spear",10,1]],
+ "6":[["tonic",25,3],["gold",35,160],["moon_pearl",30,1],["warden_mail",10,1]],
+ "7":[["heartfruit",25,3],["gold",30,230],["moon_pearl",35,2],["starsteel",10,1]],
+ "8":[["heartfruit",25,4],["gold",30,300],["moon_pearl",30,3],["moonplate",15,1]],
+ "9":[["gold",35,440],["moon_pearl",35,4],["starsteel",15,1],["moonplate",15,1]],
+ "10":[["gold",25,700],["moon_pearl",25,6],["starsteel",25,1],["moonplate",25,1]]
+}
