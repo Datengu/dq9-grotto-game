@@ -1,10 +1,11 @@
-LANTERN ATLAS - v0.1
+LANTERN ATLAS - v0.2
 
 Run LanternAtlas.exe. This is an offline standalone Windows game.
 
 WASD / arrows: walk      E: interact
 B: treasure atlas       I: satchel / equip gear
-J: commission journal   Esc: close     F1: help
+J: commission journal   Esc: pause/close   F1: help
+M: discovered map       F2: live camera tuning
 Battle: 1 Attack, 2 Spark, 3 Mend, 4 Guard, 5 Flee.
 
 FIRST EXPEDITION
@@ -20,13 +21,15 @@ FIRST EXPEDITION
 10. Return home, rest, and turn in commissions at the physical board.
 
 Your old maps never disappear. Revisit them to find the same layouts and
-chest ranks. Contents, monsters and keepers reset on each new expedition.
+chest ranks. Explored maps remain recorded. Contents, monsters and keepers reset on each new expedition.
 Use favourites and notes to remember useful maps. The optional seed desk
 lets you add experimental charts by seed + final quality or share code.
 
-Guard reduces damage, blocks poison and restores 3 MP. Mend restores HP.
+Guard reduces damage, blocks poison and restores 1 MP. Mend restores HP.
 Clearleaf cures poison. Bosses cannot be fled, but you may retreat from
-exploration at any time using the Return to Bellwether button.
+exploration using Esc > Return to Bellwether. Read enemy intentions: Guard
+heavy strikes, use Spark against shields, and conserve MP. Level-ups do not
+refill HP or MP. Companions follow visually; combat still uses the leader.
 
 SAVING
 Progress autosaves, with a Save progress button as well. Close the window

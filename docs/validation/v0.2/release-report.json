@@ -1,0 +1,9 @@
+{
+  "version": "0.2.0",
+  "fresh_exported_startup_exit": 0,
+  "mixed_save_exported_startup_exit": 0,
+  "rendered_exported_frames_reviewed": true,
+  "zip_executable_matches_build": true,
+  "external_script_release_harness": "Did not reach assertions and was stopped; not counted as a passing integration test. The complete loop is validated by the Godot runtime playthrough.",
+  "executable_sha256": "8D86CAE1AED6581C5DE672D34EE46ADDFC985DE9371573CF73BAB84CB47F834B"
+}

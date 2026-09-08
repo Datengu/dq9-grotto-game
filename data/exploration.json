@@ -1,0 +1,9 @@
+{
+ "tile_size":1.8,
+ "movement":{"speed":4.4,"acceleration":20.0,"braking":26.0,"turn_speed":13.0},
+ "camera":{"height":10.8,"distance":12.5,"pitch":42.0,"field_of_view":43.0,"tracking_smoothing":9.0,"look_ahead":2.0},
+ "interior_camera":{"height":9.0,"distance":10.8,"pitch":42.0,"field_of_view":44.0,"tracking_smoothing":9.0,"look_ahead":1.2},
+ "followers":{"count":2,"spacing":1.35,"sample_distance":0.12},
+ "enemy":{"detection_radius":6.2,"lose_radius":11.0,"leash_radius":16.0,"contact_radius":0.8,"pursuit_seconds":10.0,"wander_speed":1.6,"chase_speed":3.7,"idle_seconds":1.2},
+ "fog_radius":6
+}

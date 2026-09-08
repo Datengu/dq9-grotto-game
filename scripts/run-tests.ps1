@@ -12,7 +12,12 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Godot import failed.' }
     & $godotExe --headless --path . --script res://tests/test_runner.gd -- "--count=$Count"
     if ($LASTEXITCODE -ne 0) { throw 'Generation/state/combat tests failed.' }
-    if ($Visual) { & $godotExe --path . --script res://tests/playthrough.gd -- --test-play }
-    else { & $godotExe --headless --path . --script res://tests/playthrough.gd -- --test-play }
-    if ($LASTEXITCODE -ne 0) { throw 'Playable-loop test failed.' }
+    foreach ($test in @('balance_tests','version_tests','exploration_tests','playthrough_3d')) {
+        if ($Visual -and $test -in @('exploration_tests','playthrough_3d')) {
+            & $godotExe --path . --script "res://tests/$test.gd" --fixed-fps 60 --disable-vsync -- --test-play
+        } else {
+            & $godotExe --headless --path . --script "res://tests/$test.gd" --fixed-fps 60 -- --test-play
+        }
+        if ($LASTEXITCODE -ne 0) { throw "$test failed." }
+    }
 } finally { Pop-Location }

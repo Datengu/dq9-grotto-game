@@ -18,9 +18,10 @@ func _init() -> void:
 
 func stats() -> Dictionary:
 	var level = int(player.level)
-	return {"max_hp": 78 + level * 12, "max_mp": 21 + level * 3,
-		"attack": 12 + level * 3 + int(Content.item(player.equipment.weapon).get("attack",0)),
-		"defence": 3 + level * 2 + int(Content.item(player.equipment.armour).get("defence",0)), "speed":8 + level}
+	var b = Content.table("balance").player
+	return {"max_hp": int(b.hp_base + level*b.hp_per_level), "max_mp": int(b.mp_base + level*b.mp_per_level),
+		"attack": int(b.attack_base + level*b.attack_per_level) + int(Content.item(player.equipment.weapon).get("attack",0)),
+		"defence": int(b.defence_base + level*b.defence_per_level) + int(Content.item(player.equipment.armour).get("defence",0)), "speed":8 + level}
 
 func rest() -> void:
 	player.hp = stats().max_hp
@@ -34,12 +35,12 @@ func gain_xp(amount: int) -> int:
 		player.xp -= xp_needed()
 		player.level += 1
 		gained += 1
-		player.hp = mini(stats().max_hp, player.hp + 35)
-		player.mp = mini(stats().max_mp, player.mp + 9)
+		# Capacity grows; expedition resources are not refilled by a level-up.
 	return gained
 
 func xp_needed() -> int:
-	return 25 + int(player.level) * 20
+	var b = Content.table("balance").progression
+	return int(b.xp_base + player.level*b.xp_linear + player.level*player.level*b.xp_quadratic)
 
 func give(id: String, amount: int = 1) -> void:
 	if id == "gold":
@@ -97,7 +98,7 @@ func add_map(meta: Dictionary, source: String) -> Dictionary:
 	discovery_counter += 1
 	var entry = {"meta": meta.duplicate(true), "source": source, "order": discovery_counter,
 		"discovered_at": Time.get_datetime_string_from_system(), "favourite":false,"notes":"",
-		"visits":0,"deepest":0,"clears":0,"treasure":[],"monsters":[],"floor_notes":{}}
+		"visits":0,"deepest":0,"clears":0,"treasure":[],"monsters":[],"floor_notes":{},"explored":{}}
 	maps.append(entry)
 	return entry
 
@@ -108,12 +109,12 @@ func reward_map(previous_level: int, source: String) -> Dictionary:
 	return add_map(GrottoGenerator.create(seed_value, base), source)
 
 func serialise() -> Dictionary:
-	return {"save_version":1,"player":player,"maps":maps,"quests":quests,"completed":completed,
+	return {"save_version":2,"player":player,"maps":maps,"quests":quests,"completed":completed,
 		"hub":hub,"discovery_counter":discovery_counter,"reward_counter":reward_counter,"campaign_seed":campaign_seed}
 
 func restore(data: Dictionary) -> bool:
 	data = normalise_numbers(data)
-	if int(data.get("save_version",0)) != 1:
+	if not int(data.get("save_version",0)) in [1,2]:
 		return false
 	for key in ["player","quests","hub"]:
 		if not data.get(key) is Dictionary:
@@ -149,14 +150,14 @@ func restore(data: Dictionary) -> bool:
 		for key in ["id","seed","base_quality","final_quality","grotto_rank","depth","starting_monster_rank","boss_tier","environment","displayed_level","name","generator_version"]:
 			if not entry.meta.has(key):
 				return false
-		if int(entry.meta.generator_version) != GrottoGenerator.VERSION:
+		if not GrottoGenerator.SUPPORTED_VERSIONS.has(int(entry.meta.generator_version)):
 			return false
 		for key in ["seed","base_quality","final_quality","grotto_rank","depth","starting_monster_rank","boss_tier","displayed_level"]:
 			if not entry.meta[key] is int:
 				return false
 		if entry.meta.seed < 0 or entry.meta.seed > 2147483646 or entry.meta.final_quality < 2 or entry.meta.final_quality > 248:
 			return false
-		var expected = GrottoGenerator.create(entry.meta.seed,entry.meta.base_quality,entry.meta.final_quality)
+		var expected = GrottoGenerator.create(entry.meta.seed,entry.meta.base_quality,entry.meta.final_quality,entry.meta.generator_version)
 		if expected != entry.meta:
 			return false
 		for key in ["visits","deepest","clears","order"]:
@@ -167,7 +168,11 @@ func restore(data: Dictionary) -> bool:
 			if not entry.get(key) is Array: return false
 		if not entry.get("favourite") is bool or not entry.get("floor_notes") is Dictionary:
 			return false
+		if not entry.has("explored"): entry.explored = {}
+		if not entry.explored is Dictionary: return false
 	player = data.player.duplicate(true)
+	player.hp = mini(player.hp,stats().max_hp)
+	player.mp = mini(player.mp,stats().max_mp)
 	maps = data.maps.duplicate(true)
 	quests = data.quests.duplicate(true)
 	completed = data.completed.duplicate(true)

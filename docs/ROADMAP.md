@@ -1,26 +1,20 @@
 # Vertical development roadmap
 
-## v0.1: implemented
+## v0.2: exploration correction completed
 
-Hub → physical board → map → atlas → shops → seeded expedition → combat/treasure → keeper → new map → town → original-map revisit. Separate generation, progression, quests, loot and combat; original content; seed experiments; collection tools; versioned backup saves; rendered loop test.
+Physical 3D Bellwether and five service interiors; high-angle perspective follow camera; continuous collision-based movement; two visual followers; 3D generated floors, chest/stair geometry and original creatures; roaming/detecting/pursuing enemies; optional persistent discovered map; acknowledged chest rewards; stronger combat offence, telegraphed keeper strikes and expedition attrition. Old v1 charts remain intact; new v2 charts have varying graph-grown footprints. Camera, movement, AI and balance are tunable. Tests cover the full physical loop, legacy saves, generation and naive versus tactical combat.
 
-## Next: deepen the loop
+## Next: refine this foundation
 
-1. Tune XP/combat over several collection sessions. Early progression is quick; long-term balance remains unverified.
-2. Improve documented biome-specific partitions and placement with versioned generators that preserve existing charts.
-3. Add distinct rank-based monster traits, encounter groups and readable intentions.
-4. Add atlas completion/type/level/boss/treasure filters, selection highlighting, floor previews and population observations.
-5. Add material retrieval, particular-map work and a conditional keeper commission using target-aware events.
-6. Add roaming dungeon enemies and re-engagement cooldowns. Current visible enemies remain at fixed spawns.
-7. Add save slots and migrations; consider optional expedition suspension alongside safe-town resume.
-8. Improve accessibility/gamepad controls, then add original sound and effects.
+1. Play several real collection sessions and tune camera, movement, encounter density, escape pressure and expedition resource costs. Capture a longer enemy detection/chase reference if helpful.
+2. Improve cave mesh contours and room/corridor transitions while keeping issued charts stable. Research original floor partitions and placement probabilities before changing generation again.
+3. Replace procedural limb motion with original rigged animation; improve walk/idle/turn feedback and environmental lighting. Add original audio and accessibility/controller support.
+4. Expand combat to enemy groups and mechanically active companions. Preserve the readable intent system and repeatable Attack-only/attrition benchmarks.
+5. Add atlas completion/type/level/boss/treasure filters and better observation pages; map-specific quest events can follow.
+6. Add save slots and optional expedition suspension, including roaming actor state. Current saves deliberately resume in town.
 
-## Then: town and builds
+## Later
 
-One crafting service, more equipment slots, richer stock, a recurring NPC story and inn-room trophies. Only then consider party members, vocations and complex statuses.
+One crafting service, additional equipment slots, inn-room trophies and richer NPC routines, followed by character builds and vocations. Host-authoritative 2–4 player co-op is a separate milestone: actor IDs and state boundaries exist, but networking is not implemented. Mutations, rare floor ecology, map trading, procedural commissions and town expansion remain longer-term ideas.
 
-## Longer horizon
-
-Mutations, secrets, unusual populations from generation constraints, branching depths, map statistics/trading, visiting adventurers and town expansion. These are directions, not current features.
-
-Every refinement must distinguish documented, approximated and original behaviour. Preserve separate quality, depth, rank and level concepts; never silently overwrite a discovered place.
+Every generation change must distinguish documented rules, approximation and intentional invention. Keep quality, rank, level, depth, environment and treasure potential distinct; never silently overwrite a discovered place.

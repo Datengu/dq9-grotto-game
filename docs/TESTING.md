@@ -1,44 +1,43 @@
-# Validation — v0.1
+# Validation — v0.2
 
-Run on Windows with Godot 4.6.3, 7 September 2026. Detailed machine-readable results are checked in under `docs/validation`. Regenerate local reports with `scripts/run-tests.ps1`; use `-Count 10000` for a larger stress sample and `-Visual` for screenshots.
+Run on Windows with Godot 4.6.3 on 8 September 2026. Machine-readable evidence lives in `docs/validation/v0.2`; regenerate reports with `scripts/run-tests.ps1`. The interrupted implementation had already passed the complete suite; packaging resumed from that repository state. Final focused checks covered the last camera/UI changes, generator fingerprints and the exported build.
 
-## Generation, saves and combat
+## Generation and persistence
 
-**1,000 grottos, 10,598 floors, zero failed checks.** The suite cycles through every final quality from 2 to 248 with different deterministic seeds. It verifies:
+The v2 stress sweep produced **1,000 grottos, 10,598 floors and 249,685 successful checks**, with zero failures. It covers every quality value 2–248, connectivity, required stairs and boss access, exclusive entity positions, valid monster/chest ranks, same-seed reproduction, quests, save/load, backup recovery and original-map revisits. Three geometry hashes protect v1; three additional v2 hashes are checked separately by `version_tests.gd`.
 
-- Same inputs reproduce the same structure; distinct seeds differ; three fixed SHA-256 geometry fingerprints protect generator v1.
-- Every walkable tile is connected; entrances reach stairs; every required stair/boss exists; chest and encounter locations are reachable and exclusive.
-- Quality-bracket depth/boss/monster eligibility, four-floor monster increments, valid ranked chests and the no-chests-on-B1/B2/boss rule.
-- All persistent fields round-trip, quests reveal/reward maps exactly once, and the atlas retains identity, observations, favourites and visits.
-- Loading and revisiting recreate the original dungeon, malformed/future data are rejected, corrupt primaries recover from backups and a subsequent save preserves the good backup.
-- Basic combat availability, guard, victory, ended-combat behaviour, boss escape restrictions, buying/equipping/selling, healing and inn recovery.
+Among exploration floors, the sample contained 1,601 distinct width/height pairs. Mean bounding footprint was 871 internal cells for quality brackets 1–3 and 2,654 for brackets 10–12. Large low-rank and compact high-rank floors overlap. The sample includes 92 Lumen-colony floors. These are our generator's statistics, not DQIX frequencies; the sweep is uniform over quality thresholds rather than a forecast of ordinary map rewards. `-Count 10000` enables a larger sweep.
 
-This is a deterministic quality sweep, **not a forecast of maps acquired during ordinary player progression**. The monster-rank histogram includes boss chambers. Results cover all exploration depths 2–16, monster ranks 1–12, boss tiers 1–12 and chest ranks 1–10.
+Migration tests load the v1 schema without an explored field, preserve old metadata/notes/favourites, keep the old geometry, save/reload a mixed v1/v2 atlas and retain discovered fog. A v1 chart also runs through the new 3D renderer with physical collision. Normal user saves were not changed by automated tests.
 
-| Environment | Grottos |
-|---|---:|
-| Cavern | 298 |
-| Ruins | 403 |
-| Ember | 101 |
-| Tidal | 103 |
-| Frost | 95 |
+## Physical loop and rendering
 
-The sample produced 55 unusual Lumen-colony floors and 314 rank-ten chests. Those are our generator's results, not claims about DQIX frequencies. Full depth, boss, monster and chest histograms are in the JSON report.
+The rendered `playthrough_3d.gd` run drives the real CharacterBody3D through navigation routes and uses game UI buttons. It walks to the board and weapon shop, accepts commissions, buys/equips the sabre, explores three floors, encounters roaming/chasing enemies, acknowledges treasure, defeats the keeper, claims quests, revisits the original chart and saves/reloads. It completed **10 battles and 5,210 physics movement frames**, retained three maps, and ended at level 3 with 55 HP. No stat or supply boosts were injected.
 
-## Rendered playable-loop test
+`exploration_tests.gd` covers all five doors, counters and return paths; an inn rest; patrolling NPC dialogue; acceleration/braking; normalised diagonal speed; physical wall collision; routes around walls; follower spacing and arrival; camera settling; wall-blocked detection; pursuit expiry; disengagement; alternate player actor IDs; runtime snapshots; and selective camera obstruction fading. Both the complete run and final focused rerun passed.
 
-`tests/playthrough.gd` instantiates the actual game scene, walks through collision-valid routes, interacts with the physical board/doors/counter/stairs/chests, and activates actual UI buttons. It takes **556 movement steps and resolves 13 battles**, then checks three retained maps, boss completion, quest claims, an exact old-map revisit, save and reload. No stat or inventory boosts are injected. The first expedition ends at character level five. Campaign reward seeds depend on the new-save seed, so subsequent chart names vary.
+Rendered frames were inspected for town/interior scale, camera framing, corridor travel, readable dialogue, atlas, combat, acknowledged loot and scenery occlusion. Inspection corrected initial overexposure, oversized dialogue/camera panels and hidden-leader cases. This is an automated physics/UI playthrough with visual review, not extensive human playtesting.
 
-This is a runtime-driven automated playthrough, not a claim of extensive human playtesting. Rendered screenshots were visually inspected for readability. That inspection found and fixed atlas filtering with an empty search, sidebar overflow, and a combat placeholder that lacked a creature portrait. Earlier tests also exposed JSON integer rehydration and a revisit test selecting the wrong atlas page; both were corrected.
+## Repeatable combat balance
 
-Screenshots: [town](screenshots/hub.png), [collection after expedition](screenshots/atlas-after-expedition.png), [treasure floor](screenshots/treasure-floor.png), [combat](screenshots/combat.png).
+`balance_tests.gd` runs 200 deterministic trials for each of 20 scenario/strategy combinations: **4,000 individual battles**, plus 200 continuous starter expedition trials. Player gear and levels are explicit in the test, using varied original enemy families. Damage records actual HP removed; turns include healing/guard actions and end at victory or defeat. The sustainability estimate is HP divided by per-battle damage, not a replacement for an attrition simulation.
 
-## Windows package
+| Prepared state | Normal rank / keeper tier | Attack-only normal turns | Attack-only keeper death rate | Tactical keeper death rate |
+|---|---:|---:|---:|---:|
+| Level 1, copper/ring gear | 1 / 1 | 2.0 | 25% | 0% |
+| Level 5, copper/ring gear | 3 / 3 | 3.0 | 100% | 0% |
+| Level 18, warden gear | 6 / 6 | 3.0 | 100% | 0% |
+| Level 35, starsteel/moonplate | 10 / 10 | 3.0 | 100% | 0% |
+| Level 5, copper/ring gear, unprepared for high rank | 10 / 10 | 2.0, ending in defeat | 100% | 100% |
 
-Exported with the official Windows x86-64 release template and embedded game pack. `LanternAtlas.exe` was launched from its build directory independently of the source and completed a headless startup smoke test with exit code zero. The zip includes the native executable, player guide and Godot license notices.
+Tactical keeper fights averaged roughly 9–17 turns. The full report includes HP damage, MP spent, supplies, deaths and sustainability. Ten consecutive starter encounters followed by a keeper, without resting, yielded 0/100 clears for Attack-only and 100/100 for the prepared tactical strategy. These demonstrate resource pressure and preparation gaps; they do not establish many-hour economy balance or optimal strategies. Combat still has one opponent at a time.
 
-The restricted host reports a Godot root-certificate-store access error during startup. The game makes no network requests; this did not prevent rendering, saves, tests or the release executable from running. No script/parse errors remain in the final tests.
+## Windows delivery
 
-## Practical limits
+The v0.2 native x86-64 executable contains the embedded game pack. The ZIP includes the matching executable, player guide, changelog, build manifest and Godot license notices. The executable's SHA-256 was checked against the copy inside the ZIP. The production executable was run independently of the source project with both a fresh character and a copied mixed-version save. Both runs rendered Bellwether, captured frames and exited successfully. An additional external-script release harness did not reach its assertions and was stopped; it is not counted as a passing test. The full playable loop was verified by the Godot runtime test described above. See `build-info.json` for its exact version, build time and hash.
 
-Early combat is deliberately forgiving; late-game farming and economy balance need longer sessions. Full UI coverage, alternate screen sizes, controller/accessibility input and many-hour saves remain future tests. Original-game geometry and random-call fidelity are not validated. The current room/corridor family is spatially valid but needs more biome variety. Visible enemies are stationary; NPCs have small patrol routes.
+The restricted host logs a root-certificate-store access error on startup. This offline game makes no network requests; the message did not prevent rendering, saves or tests. Final imports, checks and release startup reported no script or parse errors.
+
+## Remaining coverage
+
+Many-hour saves/economy, manual play across multiple GPUs, alternate window aspect ratios, controller/accessibility input, enemy groups, network replication and active combat companions remain future work. Original-game geometry/RNG/camera constants are not validated. The supplied recordings were studied qualitatively, and emulator overlays/speed changes were excluded from the reference interpretation.

@@ -1,6 +1,6 @@
-extends Node2D
+extends Node
 var state: GameState
-var world: WorldView
+var world: ExplorationWorld
 var ui: GameUI
 var battle: Combat
 var active_map: Dictionary = {}
@@ -18,7 +18,7 @@ func _ready() -> void:
 	if not test_mode:
 		var loaded = SaveStore.read(state)
 		if not loaded and not state.save_error.is_empty(): save_allowed = false
-	world = WorldView.new()
+	world = ExplorationWorld.new()
 	add_child(world)
 	world.interaction.connect(on_interaction)
 	ui = GameUI.new(self)
@@ -40,7 +40,8 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		if actions.has(key): combat_action(actions[key])
 		return
 	if key == KEY_ESCAPE:
-		ui.close()
+		if ui.screen == "": ui.show_pause()
+		else: ui.close()
 		return
 	if ui.screen != "": return
 	match key:
@@ -49,6 +50,8 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		KEY_I: ui.show_inventory()
 		KEY_J: ui.show_board(false)
 		KEY_F1: ui.show_help()
+		KEY_F2: ui.show_camera_settings()
+		KEY_M: ui.map_visible = not ui.map_visible
 
 func save_game(notify: bool = false) -> void:
 	if test_mode: return
@@ -66,14 +69,10 @@ func on_interaction(kind: String, payload: Variant) -> void:
 		"door": world.enter_building(payload); ui.update_hud()
 		"exit":
 			var door = world.building.door
-			world.show_hub()
-			world.player = Vector2i(door[0],door[1]+1)
-			world.drawn_player = Vector2(world.player)
+			world.show_hub(door)
 			ui.update_hud()
 		"npc":
-			var box = ui.modal(payload.name,"A neighbour of Bellwether","dialogue")
-			ui.label(box,payload.dialogue,22)
-			if state.hub.boss_wins > 0: ui.label(box,"Word of your journey has reached the square. Keep adding to that atlas.",18,GameUI.GOLD)
+			ui.show_dialogue(payload.name,payload.dialogue + (" Word of your journey has reached the square." if state.hub.boss_wins > 0 else ""))
 		"service": ui.show_service(payload)
 		"book": ui.show_book()
 		"chest": open_chest(payload)
@@ -113,7 +112,9 @@ func begin_expedition(entry: Dictionary) -> void:
 	floors = GrottoGenerator.generate(entry.meta)
 	floor_progress = []
 	for floor_data in floors:
-		floor_progress.append({"opened":[],"defeated":[],"seen":{},"boss_dead":false})
+		var key = str(floor_data.index)
+		if not entry.explored.has(key): entry.explored[key] = {}
+		floor_progress.append({"opened":[],"defeated":[],"seen":entry.explored[key],"boss_dead":false})
 	expedition_rng = SeedRng.new(state.campaign_seed + state.hub.expeditions * 65537 + entry.meta.seed)
 	floor_index = 0
 	ui.close()
@@ -141,7 +142,8 @@ func open_chest(index: int) -> void:
 	var note = "B%d · Rank %d · %s" % [floor_index+1,chest.rank,item_name]
 	if not active_map.treasure.has(note): active_map.treasure.append(note)
 	save_game()
-	ui.toast("Chest rank %d: %d %s. Recorded in your atlas." % [chest.rank,loot.amount,item_name])
+	world.sync_entities()
+	ui.show_chest(item_name,loot.amount,chest.rank)
 
 func begin_battle(index: int, boss: bool) -> void:
 	if boss and floor_progress[floor_index].boss_dead: return
@@ -177,8 +179,7 @@ func combat_action(action: String) -> void:
 		world.enter_building(Content.table("hub").buildings[4])
 		ui.toast("Ione brought you home. Lost %d crowns; your atlas and belongings are safe." % lost)
 	elif result == "fled":
-		# Remove this wandering encounter for the current expedition, without rewards.
-		floor_progress[floor_index].defeated.append(battle_enemy_index)
+		world.disengage(battle_enemy_index)
 		ui.toast("Escaped. No rewards earned.")
 	else:
 		var gained = state.gain_xp(enemy.xp)
@@ -200,6 +201,8 @@ func combat_action(action: String) -> void:
 				state.give(enemy.material)
 				material = " + " + Content.item(enemy.material).name
 			ui.toast("Victory! +%d XP, +%d crowns%s%s" % [enemy.xp,enemy.gold,material," · LEVEL UP!" if gained > 0 else ""])
+	world.sync_entities()
+	world.encounter_grace = 2.5
 	save_game()
 
 func return_home() -> void:

@@ -10,6 +10,8 @@ var tip: Label
 var toast_label: Label
 var toast_time = 0.0
 var screen = ""
+var cartography: CartographyOverlay
+var map_visible = false
 var selected_map = ""
 var book_filter = ""
 var only_favourites = false
@@ -26,50 +28,52 @@ func _ready() -> void:
 	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(root)
 	root.theme = make_theme()
-	var title = Label.new()
-	title.text = "LANTERN ATLAS"
-	title.position = Vector2(34,23)
-	title.add_theme_font_size_override("font_size",29)
-	title.add_theme_color_override("font_color",GOLD)
-	root.add_child(title)
-	location_label = Label.new()
-	location_label.position = Vector2(35,72)
-	location_label.add_theme_font_size_override("font_size",17)
-	root.add_child(location_label)
-	var side = PanelContainer.new()
-	side.position = Vector2(925,25)
-	side.size = Vector2(330,752)
-	root.add_child(side)
+	var top = PanelContainer.new()
+	top.position = Vector2(24,22)
+	top.custom_minimum_size = Vector2(330,88)
+	root.add_child(top)
 	var margin = MarginContainer.new()
-	for key in ["margin_left","margin_right","margin_top","margin_bottom"]: margin.add_theme_constant_override(key,20)
-	side.add_child(margin)
+	for key in ["margin_left","margin_right","margin_top","margin_bottom"]: margin.add_theme_constant_override(key,14)
+	top.add_child(margin)
 	var column = VBoxContainer.new()
-	column.add_theme_constant_override("separation",10)
 	margin.add_child(column)
-	label(column,"THE SURVEYOR",20,GOLD)
+	location_label = label(column,"",17,GOLD)
 	hud = label(column,"",16)
-	column.add_child(HSeparator.new())
-	button(column,"B   Treasure atlas",show_book)
-	button(column,"I    Satchel & equipment",show_inventory)
-	button(column,"J    Commission journal",func(): show_board(false))
-	button(column,"Return to Bellwether",func():
-		if game.world.mode == "dungeon" and game.battle == null: game.return_home()
-		else: toast("You are already in town."))
-	button(column,"Save progress",func(): game.save_game(true))
-	column.add_child(HSeparator.new())
-	label(column,"FIELD NOTES",15,GOLD)
-	tip = label(column,"",14,Color("aabfb9"))
-	tip.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	button(column,"Controls & field guide",show_help)
-	label(column,"An original grotto RPG · v0.1",12,Color("819c99"))
+	var shortcuts = HBoxContainer.new()
+	shortcuts.position = Vector2(826,24)
+	shortcuts.add_theme_constant_override("separation",8)
+	root.add_child(shortcuts)
+	button(shortcuts,"B  Atlas",show_book)
+	button(shortcuts,"I  Satchel",show_inventory)
+	button(shortcuts,"Esc  Menu",show_pause)
+	tip = Label.new()
+	tip.position = Vector2(240,732)
+	tip.size = Vector2(800,40)
+	tip.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	tip.add_theme_font_size_override("font_size",20)
+	tip.add_theme_color_override("font_color",Color("fff0c7"))
+	tip.add_theme_color_override("font_shadow_color",Color("182e33"))
+	tip.add_theme_constant_override("shadow_offset_x",2)
+	tip.add_theme_constant_override("shadow_offset_y",2)
+	root.add_child(tip)
 	toast_label = Label.new()
-	toast_label.position = Vector2(210,33)
-	toast_label.size = Vector2(680,68)
-	toast_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	toast_label.position = Vector2(220,125)
+	toast_label.size = Vector2(840,62)
+	toast_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	toast_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	toast_label.add_theme_font_size_override("font_size",16)
+	toast_label.add_theme_font_size_override("font_size",18)
 	toast_label.add_theme_color_override("font_color",GOLD)
+	toast_label.add_theme_color_override("font_shadow_color",Color("182e33"))
+	toast_label.add_theme_constant_override("shadow_offset_x",2)
+	toast_label.add_theme_constant_override("shadow_offset_y",2)
 	root.add_child(toast_label)
+	cartography = CartographyOverlay.new()
+	cartography.world = game.world
+	cartography.position = Vector2(979,91)
+	cartography.size = Vector2(275,245)
+	cartography.visible = false
+	cartography.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(cartography)
 	update_hud()
 
 func make_theme() -> Theme:
@@ -102,20 +106,22 @@ func make_theme() -> Theme:
 
 func _process(delta: float) -> void:
 	toast_time -= delta
-	toast_label.visible = toast_time > 0
+	toast_label.visible = toast_time > 0 and screen == ""
+	tip.visible = screen == ""
+	tip.text = game.world.hint if game.world.hint != "" else "WASD / arrows  Move     E  Interact     M  Map"
+	if cartography != null:
+		cartography.visible = map_visible and game.world.mode == "dungeon" and screen == ""
+		if cartography.visible: cartography.queue_redraw()
 
 func update_hud() -> void:
 	if hud == null: return
 	var p = game.state.player
 	var s = game.state.stats()
-	hud.text = "Level %d     ·     %d crowns\n\nHP   %d / %d      MP   %d / %d\nAttack  %d    Defence  %d\nSpeed   %d    ·    XP   %d / %d%s" % [p.level,p.gold,p.hp,s.max_hp,p.mp,s.max_mp,s.attack,s.defence,s.speed,p.xp,game.state.xp_needed(),"\nPOISONED · Clearleaf cures" if p.poison > 0 else ""]
+	hud.text = "Lv.%d   HP %d / %d   MP %d / %d%s" % [p.level,p.hp,s.max_hp,p.mp,s.max_mp,"  ! Poison" if p.poison > 0 else ""]
 	if game.world.mode == "dungeon":
-		var meta = game.active_map.meta
-		location_label.text = "%s   ·   Lv. %d" % [meta.name,meta.displayed_level]
-		tip.text = "FLOOR %d / %d\n%s · Monster rank %d\n\n%s\n\nChests and stairs stay in place.\nE · Stairs or treasure" % [game.floor_index+1,meta.depth+1,meta.environment,game.world.floor_data.rank,"Keeper's chamber" if game.floor_index == meta.depth else "Find the golden descending stairs."]
+		location_label.text = "%s  /  B%d" % [game.active_map.meta.environment,game.floor_index+1]
 	else:
-		location_label.text = "BELLWETHER   /   " + ("A place to return to" if game.world.mode == "hub" else game.world.building.name)
-		tip.text = "%d permanent maps · %d keepers defeated\n\n%s\n\nWASD / arrows · Walk   E · Interact\nB · Atlas    I · Satchel    J · Journal" % [game.state.maps.size(),game.state.hub.boss_wins,"Begin at the bulletin board, north of the fountain." if game.state.maps.is_empty() else "Visit a shop, equip your gear, then choose a map from the atlas."]
+		location_label.text = "BELLWETHER" if game.world.mode == "hub" else game.world.building.name
 
 func label(parent: Node, text: String, size: int = 16, color: Color = INK) -> Label:
 	var node = Label.new()
@@ -272,7 +278,7 @@ func fill_map_details(box: VBoxContainer, entry: Dictionary) -> void:
 
 func show_map_details(entry: Dictionary) -> void:
 	var m = entry.meta
-	var box = modal("Chart details","Generation v1 · Our seeds are not compatible with Dragon Quest IX tools.","details")
+	var box = modal("Chart details","Generation v%d · Our charts use original seeds." % m.generator_version,"details")
 	var fields = "Seed: %d\nBase quality: %d    Final quality: %d    Grotto rank: %d\nDisplayed level: %d    Depth: %d + boss\nStarting monster rank: %d    Deepest monster rank: %d\nBoss tier: %d    Environment: %s" % [m.seed,m.base_quality,m.final_quality,m.grotto_rank,m.displayed_level,m.depth,m.starting_monster_rank,GrottoGenerator.floor_rank(m,int(m.depth)-1),m.boss_tier,m.environment]
 	label(box,fields,18)
 	var ranks = {}
@@ -288,9 +294,9 @@ func show_map_details(entry: Dictionary) -> void:
 
 func show_seed_desk() -> void:
 	var box = modal("The seed desk","Optional experiments · Add a reproducible chart without replacing your collection.","seeds")
-	label(box,"Paste a Lantern Atlas share code (LA1-XXXXXXXX-QQQ).\nOr enter a decimal seed and final quality below. These create charts only; they do not raise your character's level.",18)
+	label(box,"Paste a Lantern Atlas share code (LA1 or LA2).\nOr enter a decimal seed and final quality below. These create charts only; they do not raise your character's level.",18)
 	var code = LineEdit.new()
-	code.placeholder_text = "LA1-00000000-002"
+	code.placeholder_text = "LA2-00000000-002"
 	box.add_child(code)
 	var values = row(box)
 	label(values,"Seed",16)
@@ -307,15 +313,17 @@ func show_seed_desk() -> void:
 	button(box,"Record this chart",func():
 		var seed_value = int(seed_input.value)
 		var q = int(quality.value)
+		var version = GrottoGenerator.VERSION
 		if not code.text.strip_edges().is_empty():
 			var parts = code.text.strip_edges().split("-")
-			if parts.size() != 3 or parts[0] != "LA1" or not parts[1].is_valid_hex_number() or not parts[2].is_valid_int():
+			if parts.size() != 3 or not parts[0] in ["LA1","LA2"] or not parts[1].is_valid_hex_number() or not parts[2].is_valid_int():
 				toast("Use a code such as LA1-00000000-002."); return
+			version = int(parts[0].substr(2))
 			seed_value = parts[1].hex_to_int()
 			q = parts[2].to_int()
 		if seed_value < 0 or seed_value > 2147483646 or q < 2 or q > 248:
 			toast("Seed must be 0–2147483646; quality must be 2–248."); return
-		var entry = game.state.add_map(GrottoGenerator.create(seed_value,q,q),"Seed desk experiment")
+		var entry = game.state.add_map(GrottoGenerator.create(seed_value,q,q,version),"Seed desk experiment")
 		game.save_game()
 		announce_map(entry))
 	button(box,"Back to atlas",show_book)
@@ -340,7 +348,7 @@ func show_board(physical: bool = true) -> void:
 func show_inventory() -> void:
 	if game.battle != null: return
 	var box = modal("The travelling satchel","Equip gear here, or use supplies between battles. Equipped items cannot be sold.","inventory")
-	label(box,"Weapon: %s   /   Armour: %s" % [Content.item(game.state.player.equipment.weapon).name,Content.item(game.state.player.equipment.armour).name],17,GOLD)
+	label(box,"Weapon: %s   /   Armour: %s\n%d crowns  ·  Attack %d  ·  Defence %d  ·  XP %d / %d" % [Content.item(game.state.player.equipment.weapon).name,Content.item(game.state.player.equipment.armour).name,game.state.player.gold,game.state.stats().attack,game.state.stats().defence,game.state.player.xp,game.state.xp_needed()],17,GOLD)
 	var list = scroll(box,390)
 	for id in game.state.player.inventory:
 		var count = int(game.state.player.inventory[id])
@@ -398,8 +406,9 @@ func fill_shop(box: Node, info: Dictionary, sell: bool) -> void:
 
 func show_combat() -> void:
 	var fight: Combat = game.battle
-	var box = modal(fight.enemy.name,"KEEPER ENCOUNTER" if fight.enemy.boss else "A wandering inhabitant · Rank %d" % fight.enemy.rank,"combat")
+	var box = modal(fight.enemy.name,"KEEPER ENCOUNTER" if fight.enemy.boss else "A wandering inhabitant","combat")
 	label(box,"Enemy HP  %d / %d      |      Your HP  %d / %d      MP  %d / %d" % [fight.enemy.hp,fight.enemy.max_hp,game.state.player.hp,game.state.stats().max_hp,game.state.player.mp,game.state.stats().max_mp],20,GOLD)
+	label(box,"Next: " + fight.intent_text(),17,GOLD)
 	var stage = Control.new()
 	stage.custom_minimum_size = Vector2(900,95)
 	box.add_child(stage)
@@ -411,15 +420,15 @@ func show_combat() -> void:
 	label(box,"\n".join(lines),17).custom_minimum_size.y = 120
 	var actions = row(box)
 	button(actions,"1  Attack",func(): game.combat_action("attack"))
-	button(actions,"2  Spark · 4 MP",func(): game.combat_action("spark"),game.state.player.mp < 4)
-	button(actions,"3  Mend · 5 MP",func(): game.combat_action("mend"),game.state.player.mp < 5)
-	button(actions,"4  Guard · +3 MP",func(): game.combat_action("guard"))
+	button(actions,"2  Spark · 5 MP",func(): game.combat_action("spark"),game.state.player.mp < 5)
+	button(actions,"3  Mend · 6 MP",func(): game.combat_action("mend"),game.state.player.mp < 6)
+	button(actions,"4  Guard · +1 MP",func(): game.combat_action("guard"))
 	button(actions,"5  Flee",func(): game.combat_action("flee"),fight.enemy.boss)
 	var supplies = row(box)
 	for id in ["salve","tonic","remedy","heartfruit"]:
 		var count = int(game.state.player.inventory.get(id,0))
 		button(supplies,"%s ×%d" % [Content.item(id).name,count],func(): game.combat_action("item:"+id),count <= 0)
-	label(box,"Guard reduces incoming damage, blocks poison and restores MP. Keepers use their special ability every third turn.",14,Color("a4bdb8"))
+	label(box,"Guard reduces incoming damage, blocks poison and restores MP. Read the enemy intention above; Guard charged strikes and use Spark against shields.",14,Color("a4bdb8"))
 
 func show_help() -> void:
 	if game.battle != null: return
@@ -435,3 +444,51 @@ func show_help() -> void:
 	label(list,"Defeat the keeper for another map. Use the return button or the keeper's portal to go home, rest, and claim completed commissions at the board. Revisit maps to farm their fixed chest ranks and monsters.")
 	label(list,"Controls & saving",21,GOLD)
 	label(list,"WASD / arrows: move · E: interact · B: atlas · I: inventory · J: journal · Esc: close\nBattle: 1 attack · 2 Spark · 3 Mend · 4 Guard · 5 flee\nProgress autosaves after discoveries, rewards, purchases and floor changes. Loading resumes safely in town. Expedition enemies and chests reset on a new visit. A backup save is kept. No network is required.")
+	label(list,"Exploration: M toggles the discovered map. Esc opens the pause menu and return-home action. F2 opens camera tuning. Two survey companions follow your route; combat still resolves for the leader. Monsters wander, notice you, pursue, and eventually give up. Use corners to break sight.")
+
+func show_pause() -> void:
+	if game.battle != null: return
+	var box = modal("Take a breath","Bellwether will be waiting when you return.","pause")
+	button(box,"Resume exploration",close)
+	button(box,"Treasure atlas",show_book)
+	button(box,"Commission journal",func(): show_board(false))
+	button(box,"Return to Bellwether",func(): game.return_home(),game.world.mode != "dungeon")
+	button(box,"Save progress",func(): game.save_game(true); close())
+	button(box,"Controls & field guide",show_help)
+	button(box,"Camera tuning · F2",show_camera_settings)
+
+func show_chest(item_name: String, amount: int, rank: int) -> void:
+	var box = modal("CHEST OPENED","A discovery worth stopping for.","chest_reward")
+	label(box,"✦",60,GOLD).horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label(box,"Obtained",20).horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label(box,"%s ×%d" % [item_name,amount],34,GOLD).horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label(box,"Treasure grade %d · Recorded in your atlas" % rank,16).horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	button(box,"Continue exploration",close).grab_focus()
+
+func show_dialogue(speaker: String, text: String) -> void:
+	modal(speaker,"", "dialogue")
+	var panel = body.get_parent().get_parent() as PanelContainer
+	panel.position = Vector2(120,480)
+	panel.set_deferred("size",Vector2(1040,290))
+	(overlay.get_child(0) as ColorRect).color = Color(0.015,0.025,0.03,0.18)
+	label(body,text,21)
+	button(body,"Continue",close).grab_focus()
+
+func show_camera_settings() -> void:
+	var box = modal("Exploration camera","Changes apply immediately. Defaults are in data/exploration.json.","camera")
+	# Keep enough of the world visible to judge framing while tuning.
+	var panel = body.get_parent().get_parent() as PanelContainer
+	panel.position = Vector2(820,115)
+	panel.set_deferred("size",Vector2(430,570))
+	(overlay.get_child(0) as ColorRect).color = Color(0,0,0,0.07)
+	var cam = game.world.camera
+	for spec in [["height",5.0,20.0],["distance",6.0,24.0],["pitch",25.0,65.0],["fov",30.0,65.0],["tracking_smoothing",2.0,20.0],["look_ahead",0.0,5.0]]:
+		var line = row(box)
+		var name_label = label(line,"%s: %.1f" % [spec[0],cam.get(spec[0])],15)
+		name_label.custom_minimum_size.x = 160
+		var slider = HSlider.new()
+		slider.min_value = spec[1]; slider.max_value = spec[2]; slider.step = 0.1; slider.value = cam.get(spec[0])
+		slider.custom_minimum_size.x = 145
+		line.add_child(slider)
+		slider.value_changed.connect(func(value): cam.set(spec[0],value); cam.overrides[spec[0]] = value; name_label.text = "%s: %.1f" % [spec[0],value])
+	button(box,"Restore scene defaults",func(): cam.overrides.clear(); cam.configure(game.world.mode == "interior"); show_camera_settings())

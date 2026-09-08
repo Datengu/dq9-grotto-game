@@ -1,0 +1,7 @@
+{
+ "player":{"hp_base":82,"hp_per_level":8,"mp_base":21,"mp_per_level":3,"attack_base":13,"attack_per_level":2,"defence_base":4,"defence_per_level":1},
+ "monster":{"hp_base":24,"hp_linear":12,"hp_quadratic":0.5,"attack_base":10,"attack_linear":3,"attack_quadratic":0.65,"defence_base":2,"defence_linear":3},
+ "boss":{"hp_base":105,"hp_linear":36,"hp_quadratic":1.5,"attack_base":16,"attack_linear":4,"attack_quadratic":0.62,"defence_base":4,"defence_linear":4},
+ "abilities":{"spark_cost":5,"spark_base":23,"spark_per_level":3,"mend_cost":6,"mend_base":42,"mend_per_level":4,"guard_mana":1,"guard_multiplier":0.3,"crush_multiplier":1.9},
+ "progression":{"xp_base":35,"xp_linear":25,"xp_quadratic":2}
+}

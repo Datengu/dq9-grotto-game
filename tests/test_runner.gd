@@ -1,7 +1,9 @@
 extends SceneTree
 var checks = 0
 var failures: Array = []
-var distributions: Dictionary = {"depth":{},"monster_rank":{},"boss_tier":{},"chest_rank":{},"environment":{},"unusual":0,"invalid":0,"floors":0}
+var distributions: Dictionary = {"depth":{},"monster_rank":{},"boss_tier":{},"chest_rank":{},"environment":{},"width":{},"height":{},"rooms":{},"footprints":{},"unusual":0,"invalid":0,"floors":0}
+var low_area: Array = []
+var high_area: Array = []
 
 func check(condition: bool, message: String) -> void:
 	checks += 1
@@ -24,7 +26,7 @@ func run() -> void:
 	var start = Time.get_ticks_msec()
 	check(SeedRng.new(0).next() == 48271,"RNG golden vector")
 	for fixture in [[0,2,"0c937bf95af6c74ad11e421ef908441ec081677101a09159394955aa82e7d91b"],[123456,248,"c182daad4a908bfaa9dc8365d9f2ad1b40619c9a8a908f533dfa36fe8f2f7c83"],[54321,120,"b4ba448d07903067a831a3da1d7d7dbddc032aa7bc19895f15042e053f3d4512"]]:
-		var fixed = GrottoGenerator.create(fixture[0],fixture[1],fixture[1])
+		var fixed = GrottoGenerator.create(fixture[0],fixture[1],fixture[1],1)
 		check(JSON.stringify(GrottoGenerator.generate(fixed)).sha256_text() == fixture[2],"Version-one geometry fingerprint remains unchanged")
 	var starter = QuestSystem.starter()
 	check(starter.depth == 3 and starter.starting_monster_rank == 1 and starter.boss_tier == 1,"Starter has approachable three-floor expedition")
@@ -48,9 +50,14 @@ func run() -> void:
 		check(meta.boss_tier >= bracket[5] and meta.boss_tier <= bracket[6],"Boss eligibility")
 		for f in floors:
 			distributions.floors += 1
+			if f.index < meta.depth:
+				tally("width",f.width); tally("height",f.height); tally("rooms",f.room_count)
+				tally("footprints","%dx%d" % [f.width,f.height])
+				if meta.grotto_rank <= 3: low_area.append(f.width*f.height)
+				if meta.grotto_rank >= 10: high_area.append(f.width*f.height)
 			tally("monster_rank",f.rank)
 			if f.unusual != "": distributions.unusual += 1
-			var reached = FloorGenerator.reachable(f.tiles,f.entrance)
+			var reached = FloorGeneratorV2.reachable(f,f.entrance)
 			check(reached.size() == f.tiles.count(1),"All floor tiles connected: %s B%d" % [meta.id,f.index+1])
 			check(f.rank >= 1 and f.rank <= 12,"Enemy rank bounds")
 			check(f.rank == mini(12,meta.starting_monster_rank + int(f.index/4)),"Rank steps every four floors")
@@ -58,7 +65,7 @@ func run() -> void:
 			var target = f.stairs if f.index < meta.depth else f.boss
 			check(target.size() == 2,"Required stair or boss exists")
 			if target.size() == 2:
-				check(reached.has(int(target[1])*35+int(target[0])),"Entrance reaches stairs / boss")
+				check(reached.has(int(target[1])*int(f.width)+int(target[0])),"Entrance reaches stairs / boss")
 				check(target != f.entrance,"Stairs distinct")
 				occupied[str(target)] = true
 			check(f.chests.size() == 0 if f.index < 2 or f.index == meta.depth else f.chests.size() >= 1 and f.chests.size() <= 3,"Chest floor/count rules")
@@ -66,17 +73,25 @@ func run() -> void:
 				tally("chest_rank",chest.rank)
 				var bounds = Content.table("generation").chest_ranges[f.rank-1]
 				check(chest.rank >= bounds[0] and chest.rank <= bounds[1],"Valid chest rank for monster rank")
-				check(reached.has(int(chest.pos[1])*35+int(chest.pos[0])),"Chest reachable")
+				check(reached.has(int(chest.pos[1])*int(f.width)+int(chest.pos[0])),"Chest reachable")
 				check(not occupied.has(str(chest.pos)),"Chest has exclusive position")
 				occupied[str(chest.pos)] = true
 			for enemy in f.enemies:
 				check(enemy.rank == f.rank,"Encounter matches floor rank")
-				check(reached.has(int(enemy.pos[1])*35+int(enemy.pos[0])),"Enemy reachable")
+				check(reached.has(int(enemy.pos[1])*int(f.width)+int(enemy.pos[0])),"Enemy reachable")
 				check(not occupied.has(str(enemy.pos)),"Enemy has exclusive position")
 				occupied[str(enemy.pos)] = true
 		if i % 100 == 0: print("Generated and checked %d / %d grottos" % [i,count])
 	test_state(starter,original)
 	test_combat()
+	if count >= 247:
+		check(distributions.footprints.size() > 100,"Topology creates many different actual footprints")
+		var low_mean = low_area.reduce(func(a,b): return a+b,0)/float(low_area.size())
+		var high_mean = high_area.reduce(func(a,b): return a+b,0)/float(high_area.size())
+		check(high_mean > low_mean*1.5,"Higher quality probabilistically expands topology")
+		distributions["mean_footprint_low"] = low_mean
+		distributions["mean_footprint_high"] = high_mean
+		check(low_area.max() > high_area.min(),"Compact high and unusually large low floors coexist")
 	# Acquire quality distribution at progression endpoints and rounding corner.
 	for base in [2,55,60,75,80,100,120,140,160,180,200,220,248,152]:
 		for i in 100:
@@ -144,7 +159,7 @@ func test_combat() -> void:
 	var fight = Combat.new(state,Content.monster("Cavern",1),42)
 	state.player.mp = 0
 	check(not fight.act("spark") and fight.turn == 0,"Unavailable ability cannot advance turn")
-	check(fight.act("guard") and state.player.mp == 3,"Guard restores MP")
+	check(fight.act("guard") and state.player.mp == 1,"Guard restores MP")
 	state.rest()
 	var turns = 0
 	while fight.outcome == "" and turns < 30:

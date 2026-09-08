@@ -1,0 +1,11 @@
+{
+  "version": "0.2.0",
+  "engine": "Godot 4.6.3",
+  "built_utc": "2026-09-08T13:16:21.7903178Z",
+  "executable_sha256": "8D86CAE1AED6581C5DE672D34EE46ADDFC985DE9371573CF73BAB84CB47F834B",
+  "save_version": 2,
+  "supported_generators": [
+    1,
+    2
+  ]
+}

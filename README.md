@@ -9,22 +9,24 @@ All names, dialogue, items, monsters and geometric artwork are original placehol
 Open **build/LanternAtlas/LanternAtlas.exe**. No engine installation or network is required. Or extract **build/LanternAtlas-Windows.zip** and run the executable. Keep the accompanying Godot license notices when distributing it.
 
 - WASD / arrows: walk. E: interact with board, doors, counters, treasure or stairs.
-- B: atlas. I: satchel/equipment. J: journal. Esc: close. F1: help.
+- B: atlas. I: satchel/equipment. J: journal. Esc: pause/close. M: discovered map. F1: help. F2: camera tuning.
 - Battle keys 1-5: attack, Spark, Mend, Guard, flee. Mouse buttons also work.
 
 Walk north from the fountain to the board. Accept *A light below the hill* and the other two commissions. Enter Brass & Blade, approach Orin's counter, buy a copper sabre for 65 crowns, then equip it with I. Rest is free at The Warm Window. Use B to launch your first expedition.
 
 Gold stairs descend; blue stairs ascend. Chests start on floor three; the keeper has a separate chamber below. Defeat it for a new permanent map, return home and claim commissions at the physical board. Old maps retain their layouts, chest locations/ranks and identity. Enemies, keepers and chest contents reset for each expedition.
 
-## Included in v0.1
+## Included in v0.2
 
-Five enterable service buildings, two patrolling neighbours, reactive dialogue, a personal inn room, six commissions, permanent atlas, favourites, notes, search/sorting, statistics and share codes. Five environments, 12 quality brackets, 2-16 exploration floors plus keeper, 12 monster ranks, ten chest ranks and 12 original keeper tiers. Solo turn-based combat, HP/MP, XP/levels, poison, equipment, supplies, shops, ranked loot and backup saves.
+Full-screen 3D exploration, a smooth perspective follow camera, continuous capsule movement, two visual followers, roaming enemies and varied deterministic floor footprints. Five enterable service buildings, two patrolling neighbours, reactive dialogue, a personal inn room, six commissions, permanent atlas, favourites, notes, search/sorting, statistics and share codes. Five environments, 12 quality brackets, 2-16 exploration floors plus keeper, 12 monster ranks, ten chest ranks and 12 original keeper tiers. Solo turn-based combat, HP/MP, XP/levels, poison, equipment, supplies, shops, ranked loot and backup saves.
+
+Chest rewards pause for acknowledgement. Enemy intentions are shown in combat: Guard charged strikes, use Spark against shields, and budget healing. Level-ups increase capacity without replenishing expedition resources.
 
 The atlas seed desk lets you experiment with seed and final quality without raising your character's level. Buying equipment does not automatically equip it.
 
 ## Saves
 
-Normal save folder: **%APPDATA%\Lantern Atlas\**. Files: atlas-save.json and atlas-save.json.bak. Progress autosaves after durable changes and on normal window close; an explicit Save button is also available. Loading starts safely in town and retains loot/progression. It does not suspend the current floor.
+Normal save folder: **%APPDATA%\Lantern Atlas\**. Files: atlas-save.json and atlas-save.json.bak. Progress autosaves after durable changes and on normal window close; an explicit Save button is also available. Loading starts safely in town and retains loot/progression. It does not suspend the current floor. Explored floor sketches remain in your atlas. Existing v1 saves and charts are supported: old layouts stay on generator v1; newly acquired charts use v2.
 
 Damaged primary saves fall back to the previous valid backup. Unsupported or unrecoverable saves are preserved and saving pauses with an in-game message. For manual recovery, close the game, copy the folder somewhere safe and restore a known-good backup. To start fresh, rename both files after backing them up. Avoid running two game instances against the same save.
 
@@ -43,4 +45,4 @@ Tests use isolated files under test-output, never your real character. The visua
 
 See [architecture](docs/ARCHITECTURE.md), [mechanics research](docs/MECHANICS.md), [testing evidence](docs/TESTING.md) and [roadmap](docs/ROADMAP.md).
 
-This is a vertical slice: generous early balance, approximate original floor geometry, shared room/corridor layouts across biomes, and static visible dungeon enemies. Parties, crafting, audio, controller mapping, complex NPC schedules and finished art are deferred.
+This is an early 3D vertical slice. Models and environments are original geometric placeholders; exact DQIX floor algorithms and camera constants are not reproduced. Followers are visual; combat is still solo. Networking, crafting, audio, controller support and finished art remain future work. See [reference study and camera tuning](docs/EXPLORATION-REFERENCES.md) for the design translation and limitations.

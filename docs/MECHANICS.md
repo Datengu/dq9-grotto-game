@@ -17,12 +17,12 @@ See `grotto_generator.gd` and independently written numeric definitions in `data
 | Mechanic | Current implementation | Remaining work |
 |---|---|---|
 | Seed / RNG | 31-bit Park–Miller, separate floor streams | Research original seed reduction, equivalence and call order |
-| Geometry | Nine jittered chambers, spanning tree, extra corridors | Study partitioning, corridor and biome-specific rules |
+| Geometry | V1: nine jittered chambers. V2: dynamically grown/cropped room graph | Study partitioning, corridor and biome-specific rules |
 | Chests | Unique reachable positions; eligible ranks sampled uniformly | Original placement preferences and rank probabilities unresolved |
-| Populations | Three original families per environment, rank-scaled stats, fixed visible spawns | Memory-budget constraints and support groups not reconstructed |
+| Populations | Three original families per environment, rank-scaled stats, fixed spawn identities with runtime roaming | Memory-budget constraints and support groups not reconstructed |
 | Unusual floors | 1/160 chance on eligible rank-five-plus floors: Lumen colony, extra XP | Original placeholder, not original-game memory anomalies |
 | Names | Original prefix by rank band, locale by environment/depth, suffix by boss band | Broader overlapping eligibility could carry more information |
-| Visibility | Nearby tiles reveal through walls and remain visible that expedition | True line of sight and permanent floor sketches deferred |
+| Visibility | Nearby tiles reveal through walls; sketches now survive revisits and saves | Map line of sight still approximate; enemy detection uses wall-aware sight |
 
 ## Intentional differences
 
@@ -33,3 +33,9 @@ Our enemies, abilities, stats, weapons, loot, dialogue, names and colony rewards
 ## Next research
 
 Prioritise public descriptions of floor partitions and rank probabilities. Record source revision, disagreements, confidence and independently authored test vectors before changing rules. The [DQIX community editor](https://github.com/DQIX/editor) identifies a partial community implementation as a future lead; no code was copied from it. Review provenance/licensing before any implementation study. Preserve all issued v1 charts when refining generation.
+
+## v0.2 research follow-up — 8 September 2026
+
+Rechecked the [Grotto Mechanics Guide](https://gamefaqs.gamespot.com/ds/937281-dragon-quest-ix-sentinels-of-the-starry-skies/faqs/61151), especially sections 2.3.2–2.3.3. It documents seed-fixed chest positions/ranks and original floors of differing size: the first four floors use 10×10 through 14×14, while deeper floors can reach 15×15 or 16×16. Its monster-population anomalies relate to storage constraints, not a simple independent rarity roll.
+
+Our v2 graph is an explicit original approximation for the requested scalable physical footprints, not a reconstruction of those original floor-cell units, partitioning rules or memory behaviour. Quality-dependent topology beyond the documented depth tendencies is an intentional design extension requested for this pass. The frozen v1 generator remains available for every existing chart. Camera framing, following, town transitions and visible encounter movement were studied from the user's supplied recordings; see [reference observations](EXPLORATION-REFERENCES.md). No reference media are packaged.
