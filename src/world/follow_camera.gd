@@ -10,6 +10,12 @@ var anchor = Vector3.ZERO
 var occlusion = CameraOcclusion.new()
 var overrides: Dictionary = {}
 
+func _ready() -> void:
+	# This camera is a world-space sibling of actors. It follows their rendered
+	# transform once per frame; automatic interpolation here would add a second lag.
+	physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
+	process_priority = 100
+
 func configure(interior: bool = false) -> void:
 	var settings = Content.table("exploration")["interior_camera" if interior else "camera"]
 	height = settings.height
@@ -30,7 +36,8 @@ func reset_tracking() -> void:
 
 func _process(delta: float) -> void:
 	if is_instance_valid(target):
-		anchor = anchor.lerp(target.global_position,1-exp(-tracking_smoothing*delta))
+		var rendered_target = target.get_global_transform_interpolated().origin
+		anchor = anchor.lerp(rendered_target,1-exp(-tracking_smoothing*delta))
 		update_camera()
 
 func _physics_process(_delta: float) -> void:

@@ -37,9 +37,16 @@ func exit_building():
 	check(false,"Walking through doorway exits automatically")
 
 func walk_to(target: Vector3, reach: float = 0.2):
+	if game.world.nav is SurfaceNavigation:
+		for i in 30:
+			if game.world.nav.ready(): break
+			await physics_frame
 	var version = game.world.map_version
 	var path = game.world.nav.path(game.world.leader.global_position,target)
-	if path.is_empty(): check(false,"Navigation route exists: "+str(target)); return
+	if path.is_empty():
+		print("NAV DIAGNOSTIC ",game.world.mode," start=",game.world.leader.position," goal=",target)
+		if game.world.nav is SurfaceNavigation: print("NAV ready=",game.world.nav.ready()," polygons=",game.world.nav.navigation_mesh.get_polygon_count()," nearest=",game.world.nav.closest(target))
+		check(false,"Navigation route exists: "+str(target)); return
 	game.world.leader.command_override = true
 	for waypoint in path:
 		var ticks = 0

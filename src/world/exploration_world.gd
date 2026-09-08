@@ -116,6 +116,7 @@ func spawn_actor(id: String, pos: Vector3, color: Color, kind: String = "human")
 	actor.setup(id,color,kind)
 	actor_root.add_child(actor)
 	actor.position = pos+Vector3(0,0.05,0)
+	actor.reset_physics_interpolation()
 	actors[id] = actor
 	return actor
 
@@ -143,6 +144,7 @@ func show_hub(return_door: Array = []) -> void:
 	environment.background_color = Color("b9c8be")
 	environment.ambient_light_energy = 0.3
 	environment.fog_density = 0.003
+	nav = GridNavigation.new()
 	nav.setup(grid_for_hub(),tile_size)
 	HubGeometry.build(geometry,hub,tile_size)
 	var spawn = Vector3(13*tile_size,0,9.5*tile_size)
@@ -152,6 +154,7 @@ func show_hub(return_door: Array = []) -> void:
 		# Arrive looking away from the door, so held outward movement continues
 		# into town instead of turning back toward the building.
 		leader.model.rotation.y = PI
+		leader.reset_physics_interpolation()
 	add_target("board",0,Vector3(hub.board[0]*tile_size,0,hub.board[1]*tile_size),"Read expedition bulletin",2.3)
 	for b in hub.buildings:
 		add_target("door",b,Vector3(b.door[0]*tile_size,0,b.door[1]*tile_size),"Enter "+b.name.to_lower(),2.1)
@@ -178,6 +181,7 @@ func enter_building(info: Dictionary) -> void:
 	for y in range(6,15):
 		for x in range(6,15): tiles[y*21+x] = 1
 	for x in range(8,13): tiles[8*21+x] = 0
+	nav = GridNavigation.new()
 	nav.setup({"width":21,"height":21,"tiles":tiles},tile_size)
 	spawn_party(geometry.position+Vector3(0,0,6.0))
 	var keeper = spawn_actor("keeper",geometry.position+Vector3(0,0,-5.1),Color(info.color).lightened(0.15))
@@ -201,7 +205,9 @@ func show_floor(data: Dictionary, metadata: Dictionary, progress: Dictionary, fr
 	environment.ambient_light_energy = 0.22
 	environment.fog_light_color = Color("314345")
 	environment.fog_density = 0.009
+	nav = SurfaceNavigation.new()
 	nav.setup(data,tile_size)
+	nav.build_surface()
 	var built = DungeonGeometry.build(geometry,data,meta.environment,tile_size)
 	chest_models = built.chests
 	var spawn = data.stairs if from_below and not data.stairs.is_empty() else data.entrance

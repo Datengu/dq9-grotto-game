@@ -25,6 +25,7 @@ func setup(enemy_id: String, body: ExplorerActor, seed_value: int, variant: int)
 	timer = 0.3 + rng.between(0,15)*0.1
 
 func update(delta: float, actors: Dictionary, nav: GridNavigation) -> String:
+	if nav is SurfaceNavigation and not nav.ready(): return ""
 	grace = maxf(0,grace-delta)
 	timer -= delta
 	repath -= delta
@@ -62,22 +63,24 @@ func update(delta: float, actors: Dictionary, nav: GridNavigation) -> String:
 		actor.desired = Vector3.ZERO
 		if timer <= 0:
 			for i in 12:
-				var destination = nav.cell(home)+Vector2i(rng.between(-4,4),rng.between(-4,4))
-				if nav.walkable(destination):
-					route = nav.path(actor.global_position,nav.world(destination))
+				var destination = nav.random_near(home,1.5,7.0,rng) if nav is SurfaceNavigation else nav.world(nav.cell(home)+Vector2i(rng.between(-4,4),rng.between(-4,4)))
+				if nav.walkable(nav.cell(destination)):
+					route = nav.path(actor.global_position,destination)
 					if route.size() > 1: mode = "wander"; break
 			timer = config.idle_seconds
 	else:
 		actor.speed = config.wander_speed * (0.8 if personality == "slow" else 1)
 	if mode != "idle":
-		while not route.is_empty() and flat_distance(actor.global_position,route[0]) < 0.24: route.remove_at(0)
+		# The funnel path contains only physical corners and an arbitrary endpoint.
+		# Repathing must not send an actor back to the start of its current segment.
+		while not route.is_empty() and flat_distance(actor.global_position,route[0]) < 0.18: route.remove_at(0)
 		if route.is_empty():
 			actor.desired = Vector3.ZERO
 			if mode != "chase": mode = "idle"; timer = config.idle_seconds + rng.between(0,10)*0.12
 		else:
 			var direction = route[0]-actor.global_position
 			direction.y = 0
-			actor.desired = direction.normalized()
+			actor.desired = direction.normalized()*minf(1.0,direction.length()/0.45) if route.size() == 1 else direction.normalized()
 	return ""
 
 func disengage() -> void:
