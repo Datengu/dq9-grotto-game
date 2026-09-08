@@ -69,6 +69,10 @@ static func interior(root: Node3D, info: Dictionary) -> void:
 	for x in [-8.5,8.5]: WorldGeometry.box(root,Vector3(x,1.55,0),Vector3(0.35,3.1,17.3),Color("b6a888"),true)
 	WorldGeometry.box(root,Vector3(0,1.55,-8.5),Vector3(17.3,3.1,0.35),Color("b6a888"),true)
 	for x in [-5.2,5.2]: WorldGeometry.box(root,Vector3(x,0.65,8.5),Vector3(6.3,1.3,0.35),Color("b6a888"),true)
+	# Invisible collision behind the exit threshold prevents leaving the floor
+	# even if the transition callback is delayed or unavailable.
+	var backstop = WorldGeometry.box(root,Vector3(0,1.5,8.4),Vector3(4.3,3,0.2),Color.TRANSPARENT,true)
+	backstop.visible = false
 	WorldGeometry.box(root,Vector3(0,0.012,2.0),Vector3(3.0,0.03,11),Color(info.color).darkened(0.15))
 	WorldGeometry.box(root,Vector3(0,0.62,-3.1),Vector3(7,1.24,1.15),Color("836246"),true)
 	WorldGeometry.box(root,Vector3(0,1.3,-3.1),Vector3(7.3,0.15,1.35),Color("b79965"))

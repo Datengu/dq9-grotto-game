@@ -27,6 +27,15 @@ func stop():
 	game.world.leader.desired = Vector3.ZERO
 	for i in 14: await physics_frame
 
+func exit_building():
+	await walk_to(game.world.geometry.position+Vector3(0,0,7.2))
+	game.world.leader.command_override = true
+	game.world.leader.desired = Vector3.BACK
+	for i in 90:
+		await physics_frame
+		if game.world.mode == "hub": return
+	check(false,"Walking through doorway exits automatically")
+
 func walk_to(target: Vector3, reach: float = 0.2):
 	var version = game.world.map_version
 	var path = game.world.nav.path(game.world.leader.global_position,target)
@@ -100,8 +109,7 @@ func run():
 	game.ui.show_inventory()
 	check(click_text("Equip"),"Equip new weapon")
 	game.ui.close()
-	await walk_to(game.world.geometry.position+Vector3(0,0,7.4))
-	game.world.interact()
+	await exit_building()
 	check(game.world.mode == "hub","Exit shop to correct town door")
 	game.ui.show_book()
 	var entry = game.state.maps[0]

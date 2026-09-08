@@ -15,8 +15,7 @@ func run():
 		check(game.ui.screen == "service","Approach service: "+info.id)
 		if info.id == "inn": check(click_text("Rest until morning"),"Rest at physical inn")
 		else: game.ui.close()
-		await walk_to(game.world.geometry.position+Vector3(0,0,7.4))
-		game.world.interact()
+		await exit_building()
 		check(game.world.mode == "hub","Return from "+info.id)
 	var npc = game.world.npcs[0]
 	await walk_to(npc.actor.position,1.3)

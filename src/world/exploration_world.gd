@@ -38,6 +38,8 @@ var authority_enabled = true
 var test_motion = false
 var last_reveal = Vector2i(-9999,-9999)
 var npc_clock = 0.0
+var exit_pending = false
+var interior_safe_positions: Dictionary = {}
 
 func _ready() -> void:
 	tile_size = float(Content.table("exploration").tile_size)
@@ -66,6 +68,9 @@ func _ready() -> void:
 	show_hub()
 
 func clear_world() -> void:
+	exit_pending = false
+	blocked = false
+	interior_safe_positions.clear()
 	if is_instance_valid(geometry): remove_child(geometry); geometry.queue_free()
 	if is_instance_valid(actor_root): remove_child(actor_root); actor_root.queue_free()
 	geometry = Node3D.new()
@@ -143,6 +148,10 @@ func show_hub(return_door: Array = []) -> void:
 	var spawn = Vector3(13*tile_size,0,9.5*tile_size)
 	if not return_door.is_empty(): spawn = Vector3(return_door[0]*tile_size,0,(return_door[1]+0.7)*tile_size)
 	spawn_party(spawn)
+	if not return_door.is_empty():
+		# Arrive looking away from the door, so held outward movement continues
+		# into town instead of turning back toward the building.
+		leader.model.rotation.y = PI
 	add_target("board",0,Vector3(hub.board[0]*tile_size,0,hub.board[1]*tile_size),"Read expedition bulletin",2.3)
 	for b in hub.buildings:
 		add_target("door",b,Vector3(b.door[0]*tile_size,0,b.door[1]*tile_size),"Enter "+b.name.to_lower(),2.1)
@@ -175,7 +184,7 @@ func enter_building(info: Dictionary) -> void:
 	keeper.role = "npc"
 	WorldGeometry.sign_text(keeper,info.keeper,Vector3(0,2.0,0),30)
 	add_target("service",info,geometry.position+Vector3(0,0,-1.8),"Speak to "+info.keeper,2.1)
-	add_target("exit",0,geometry.position+Vector3(0,0,7.8),"Return to Bellwether",1.6)
+	for actor in actors.values(): interior_safe_positions[actor.actor_id] = actor.position
 	if info.id == "inn": add_target("book",0,geometry.position+Vector3(5.5,0,4.5),"Read your atlas",1.8)
 
 func show_floor(data: Dictionary, metadata: Dictionary, progress: Dictionary, from_below: bool = false) -> void:
@@ -250,6 +259,15 @@ func sync_entities() -> void:
 
 func _physics_process(delta: float) -> void:
 	if not is_instance_valid(leader): return
+	if mode == "interior":
+		protect_interior()
+		if not blocked and not exit_pending:
+			var local = leader.position-geometry.position
+			if absf(local.x) < 2.15 and local.z >= 7.55:
+				exit_pending = true
+				blocked = true
+				finish_exit.call_deferred(map_version)
+				return
 	runtime_tick += 1
 	for actor in actors.values(): actor.paused = blocked
 	if blocked: return
@@ -282,6 +300,28 @@ func _physics_process(delta: float) -> void:
 			if offset.length() < 0.2: npc.step = (npc.step+1)%route.size()
 			npc.actor.desired = offset.normalized()*minf(1,offset.length())
 	hint = nearest().get("label","")
+	if mode == "interior" and leader.position.z-geometry.position.z > 6.6:
+		hint = "Walk through the doorway to return to Bellwether"
+
+func finish_exit(version: int) -> void:
+	if mode != "interior" or version != map_version: return
+	interaction.emit("exit",0)
+	# A missing listener must never leave the player frozen or falling.
+	if mode == "interior" and version == map_version:
+		exit_pending = false
+		blocked = false
+
+func protect_interior() -> void:
+	for actor in actors.values():
+		if actor.role not in ["player","follower"]: continue
+		var p = actor.position-geometry.position
+		if absf(p.x) > 8.1 or absf(p.z) > 8.1 or p.y < -0.6:
+			actor.position = interior_safe_positions.get(actor.actor_id,geometry.position+Vector3(0,0.1,6))
+			actor.velocity = Vector3.ZERO
+			actor.reset_physics_interpolation()
+			if actor == leader: camera.reset_tracking()
+		elif actor.is_on_floor():
+			interior_safe_positions[actor.actor_id] = actor.position
 
 func reveal() -> void:
 	var cell = nav.cell(leader.global_position)

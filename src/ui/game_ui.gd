@@ -437,7 +437,7 @@ func show_help() -> void:
 	label(list,"01  A commission",21,GOLD)
 	label(list,"Walk north from the fountain to the paper-covered board. Press E, accept 'A light below the hill', and record your first treasure map. Accept the other two jobs before leaving.")
 	label(list,"02  Prepare in town",21,GOLD)
-	label(list,"Walk to a shop door and press E to enter. Approach the counter and press E to trade. A copper sabre costs 65 crowns; a ring vest costs 60. Equip purchases with I. The inn offers free recovery.")
+	label(list,"Walk to a shop door and press E to enter. Approach the counter and press E to trade. Walk out through the doorway to leave. A copper sabre costs 65 crowns; a ring vest costs 60. Equip purchases with I. The inn offers free recovery.")
 	label(list,"03  A place to keep",21,GOLD)
 	label(list,"Press B to inspect your atlas and begin an expedition. Walk into visible monsters to fight. E opens nearby chests and uses stairs. Blue stairs go up; gold stairs go down. Chests begin on floor three. Descend again to find the keeper.")
 	label(list,"04  Bring the light home",21,GOLD)
