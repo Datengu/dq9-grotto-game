@@ -1,4 +1,4 @@
-# Architecture — v0.2
+# Architecture — v0.3
 
 Godot 4.6.3, compatibility renderer, original procedural 3D meshes, built-in UI. The gameplay/data layer from v0.1 remains; the obsolete 2D world renderer was replaced.
 
@@ -8,8 +8,9 @@ Godot 4.6.3, compatibility renderer, original procedural 3D meshes, built-in UI.
 | Scene/runtime coordination and actor registry | `src/world/exploration_world.gd` |
 | Continuous capsule movement and animation driver | `src/world/explorer_actor.gd`, `actor_model.gd` |
 | Perspective tracking and selective scenery fading | `src/world/follow_camera.gd`, `camera_occlusion.gd` |
-| Party trail and navigation | `src/world/follower_trail.gd`, `grid_navigation.gd` |
+| Party trail and navigation | `src/world/follower_trail.gd`, `grid_navigation.gd`, `surface_navigation.gd` |
 | Visible enemy state machine | `src/world/enemy_brain.gd` |
+| Local runtime population and eligibility | `src/world/encounter_population.gd`, `src/core/content.gd`, `data/encounters.json` |
 | Original world meshes/materials | `src/world/geometry_3d.gd`, `hub_geometry.gd`, `dungeon_geometry.gd` |
 | Atlas, quests, inventory, combat and service screens | `src/ui/game_ui.gd` |
 | Optional discovered map | `src/ui/cartography_overlay.gd` |
@@ -27,9 +28,11 @@ Godot 4.6.3, compatibility renderer, original procedural 3D meshes, built-in UI.
 
 **Player knowledge:** visits, deepest floor, clears, observed monsters/treasure, favourites, notes and explored floor sketches. Fog now survives expeditions and save/load. Loaded charts reproduce their original geometry.
 
-**Expedition state:** opened chests, defeated enemies and keeper completion. These persist while backtracking, then reset for a new expedition. Roaming positions are ephemeral and restart at generated spawn points when a floor is re-entered. Battle and loot random streams are independent of floor generation. Every chest and keeper pays once per expedition.
+**Expedition state:** opened chests and keeper completion persist while backtracking, then reset for a new expedition. Roaming enemies have unique runtime IDs and metadata-derived eligibility; a local population manager samples connected navigation positions and removes distant actors. Defeated IDs suppress only those actors; fresh populations use new IDs on floor re-entry. Generated legacy spawn records remain immutable but do not instantiate the runtime population. Battle and loot random streams are independent of floor generation. Every chest and keeper pays once per expedition.
 
 **Scene:** meshes, colliders, actors, follower trail, camera and UI. Physical actor positions are continuous and never change immutable generated floor data. Floor collision and AI navigation derive from that data. The dungeon bounding rectangle is an internal array bound, not a rendered board.
+
+**Timing:** simulation and actor movement run in physics ticks. Godot interpolates actor transforms for rendering; the independent world-space camera follows that interpolated transform in its render callback with its own automatic interpolation disabled. Spawn/teleport paths reset interpolation. Doorway transitions are deferred outside physics mutation and backed by collision plus safe-position containment.
 
 ## Generation and save compatibility
 

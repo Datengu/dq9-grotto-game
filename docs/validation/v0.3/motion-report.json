@@ -1,0 +1,128 @@
+[
+  {
+    "probe": "export-motion-hub-144fps-10ticks",
+    "passed": true,
+    "context": "hub",
+    "ticks": 10,
+    "stats": {
+      "frozen_frames": 0,
+      "mean_speed": 4.40001029859441,
+      "sample_count": 159,
+      "screen_step_std": 0.0663155188208472,
+      "speed_std": 0.000143869133602061,
+      "wall_clock_speed_std": 3.68887748445124
+    }
+  },
+  {
+    "probe": "export-motion-hub-144fps-60ticks",
+    "passed": true,
+    "context": "hub",
+    "ticks": 60,
+    "stats": {
+      "frozen_frames": 0,
+      "mean_speed": 4.40001351048706,
+      "sample_count": 158,
+      "screen_step_std": 0.0233526867486995,
+      "speed_std": 0.000116191336762241,
+      "wall_clock_speed_std": 2.46658593922112
+    }
+  },
+  {
+    "probe": "export-motion-hub-30fps-60ticks",
+    "passed": true,
+    "context": "hub",
+    "ticks": 60,
+    "stats": {
+      "frozen_frames": 0,
+      "mean_speed": 4.40001320294379,
+      "sample_count": 33,
+      "screen_step_std": 0.0911030301786174,
+      "speed_std": 3.81440235309352E-05,
+      "wall_clock_speed_std": 0.503066953979097
+    }
+  },
+  {
+    "probe": "export-motion-hub-60fps-60ticks",
+    "passed": true,
+    "context": "hub",
+    "ticks": 60,
+    "stats": {
+      "frozen_frames": 0,
+      "mean_speed": 4.40001194996091,
+      "sample_count": 66,
+      "screen_step_std": 0.0522952060876028,
+      "speed_std": 6.27773178770748E-05,
+      "wall_clock_speed_std": 1.53364678440023
+    }
+  },
+  {
+    "probe": "export-motion-grotto-144fps-10ticks",
+    "passed": true,
+    "context": "grotto",
+    "ticks": 10,
+    "stats": {
+      "frozen_frames": 0,
+      "mean_speed": 4.39999363164398,
+      "sample_count": 158,
+      "screen_step_std": 0.0393430867535325,
+      "speed_std": 0.000232865088926156,
+      "wall_clock_speed_std": 0.124036502276113
+    }
+  },
+  {
+    "probe": "export-motion-grotto-144fps-60ticks",
+    "passed": true,
+    "context": "grotto",
+    "ticks": 60,
+    "stats": {
+      "frozen_frames": 0,
+      "mean_speed": 4.39999657317266,
+      "sample_count": 158,
+      "screen_step_std": 0.0220785814206293,
+      "speed_std": 0.000246518028309228,
+      "wall_clock_speed_std": 0.175208597571733
+    }
+  },
+  {
+    "probe": "export-motion-grotto-30fps-60ticks",
+    "passed": true,
+    "context": "grotto",
+    "ticks": 60,
+    "stats": {
+      "frozen_frames": 0,
+      "mean_speed": 4.3999961245759,
+      "sample_count": 33,
+      "screen_step_std": 0.0937741439787259,
+      "speed_std": 7.85395106288723E-05,
+      "wall_clock_speed_std": 0.0178356284446467
+    }
+  },
+  {
+    "probe": "export-motion-grotto-60fps-60ticks",
+    "passed": true,
+    "context": "grotto",
+    "ticks": 60,
+    "stats": {
+      "frozen_frames": 0,
+      "mean_speed": 4.39999340249694,
+      "sample_count": 66,
+      "screen_step_std": 0.0529476550447351,
+      "speed_std": 0.000110791109961756,
+      "wall_clock_speed_std": 0.0433101046442406
+    }
+  },
+  {
+    "probe": "export-motion-interior-60fps",
+    "passed": true,
+    "context": "interior",
+    "ticks": 60,
+    "stats": {
+      "frozen_frames": 0,
+      "mean_speed": 4.40002408541299,
+      "sample_count": 66,
+      "screen_step_std": 0.0592694552088665,
+      "speed_std": 4.44036890100046E-05,
+      "wall_clock_speed_std": 0.0304503875115525
+    }
+  }
+]

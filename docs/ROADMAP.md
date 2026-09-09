@@ -4,7 +4,18 @@
 
 Physical 3D Bellwether and five service interiors; high-angle perspective follow camera; continuous collision-based movement; two visual followers; 3D generated floors, chest/stair geometry and original creatures; roaming/detecting/pursuing enemies; optional persistent discovered map; acknowledged chest rewards; stronger combat offence, telegraphed keeper strikes and expedition attrition. Old v1 charts remain intact; new v2 charts have varying graph-grown footprints. Camera, movement, AI and balance are tunable. Tests cover the full physical loop, legacy saves, generation and naive versus tactical combat.
 
-## Next: refine this foundation
+## v0.3: focused foundation playtest
+
+Issues #2, #1, #3 and #4: automatic contained building exits, correct render/physics interpolation, continuous navigation surfaces and local runtime encounter populations. Both chart generators and save format 2 stay intact. Source and Windows release-engine tests cover the full loop, physical routes, population lifecycle and existing saves.
+
+The remaining live foundation issues are the next priorities, rather than new content:
+
+1. #8 — tune the subjective camera/movement feel using playtest feedback. Some foreground walls still obscure the lower part of the party near stairs; review framing and occlusion together.
+2. #7 — improve floor scaling and topology distributions without silently changing issued charts.
+3. #6 — reassess combat pressure with the new dynamic encounter rate; baseline simulations alone do not prove that the overall expedition economy feels right.
+4. #5 — dedicated contextual 3D battle presentation driven by resolved combat results. Keep rules independent of animation, cameras and visual timing.
+
+## After foundation issues
 
 1. Play several real collection sessions and tune camera, movement, encounter density, escape pressure and expedition resource costs. Capture a longer enemy detection/chase reference if helpful.
 2. Improve cave mesh contours and room/corridor transitions while keeping issued charts stable. Research original floor partitions and placement probabilities before changing generation again.

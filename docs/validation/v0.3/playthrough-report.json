@@ -1,0 +1,10 @@
+{
+	"battles": 8,
+	"captures": true,
+	"chasing": true,
+	"failures": [],
+	"hp": 75,
+	"level": 3,
+	"maps": 3,
+	"physics_movement_frames": 3989
+}

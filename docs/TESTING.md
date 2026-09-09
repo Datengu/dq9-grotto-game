@@ -1,4 +1,10 @@
-# Validation — v0.2
+# Validation
+
+## Current v0.3 foundation playtest
+
+See [foundation validation](FOUNDATION-WORK.md#final-validation--focused-v03-playtest) and `docs/validation/v0.3` for the recovered work, full source-suite results, Windows release-engine expedition, existing v0.2 campaign, local populations and nine movement-cadence probes. The v0.2 record below is retained as historical evidence. `scripts/test-exported.ps1` now runs tests inside a separate release-engine export, resolving the old external-script harness limitation.
+
+## Historical v0.2
 
 Run on Windows with Godot 4.6.3 on 8 September 2026. Machine-readable evidence lives in `docs/validation/v0.2`; regenerate reports with `scripts/run-tests.ps1`. The interrupted implementation had already passed the complete suite; packaging resumed from that repository state. Final focused checks covered the last camera/UI changes, generator fingerprints and the exported build.
 

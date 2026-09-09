@@ -1,4 +1,4 @@
-LANTERN ATLAS - v0.2
+LANTERN ATLAS - v0.3
 
 Run LanternAtlas.exe. This is an offline standalone Windows game.
 
@@ -6,6 +6,7 @@ WASD / arrows: walk      E: interact
 B: treasure atlas       I: satchel / equip gear
 J: commission journal   Esc: pause/close   F1: help
 M: discovered map       F2: live camera tuning
+Walk through interior doorways to leave; no E press is needed to exit.
 Battle: 1 Attack, 2 Spark, 3 Mend, 4 Guard, 5 Flee.
 
 FIRST EXPEDITION
@@ -21,7 +22,9 @@ FIRST EXPEDITION
 10. Return home, rest, and turn in commissions at the physical board.
 
 Your old maps never disappear. Revisit them to find the same layouts and
-chest ranks. Explored maps remain recorded. Contents, monsters and keepers reset on each new expedition.
+chest ranks. Explored maps remain recorded. Chest contents and keepers reset
+on each expedition. Roaming monsters appear nearby and leave distant areas;
+their temporary positions are not permanent parts of your map.
 Use favourites and notes to remember useful maps. The optional seed desk
 lets you add experimental charts by seed + final quality or share code.
 
