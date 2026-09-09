@@ -10,6 +10,15 @@ static func table(key: String):
 static func item(id: String) -> Dictionary:
 	return table("items").get(id, {})
 
+static func encounter_pool(meta: Dictionary, floor_data: Dictionary) -> Array:
+	if not floor_data.boss.is_empty(): return []
+	var result: Array = []
+	var colony = floor_data.unusual == "Lumen colony"
+	for variant in table("monsters")[meta.environment].size():
+		if colony and variant != 2: continue
+		result.append({"rank":int(floor_data.rank),"variant":variant,"rare":colony})
+	return result
+
 static func monster(environment: String, rank: int, variant: int = 0) -> Dictionary:
 	var family = table("monsters")[environment][variant % 3]
 	var result: Dictionary = family.duplicate(true)

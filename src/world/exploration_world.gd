@@ -19,6 +19,9 @@ var leader: ExplorerActor
 var followers: Array[ExplorerActor] = []
 var actors: Dictionary = {}
 var enemies: Dictionary = {}
+var encounters: Dictionary = {}
+var population: EncounterPopulation
+var next_encounter_id = 0
 var npcs: Array = []
 var trail = FollowerTrail.new()
 var nav = GridNavigation.new()
@@ -78,6 +81,8 @@ func clear_world() -> void:
 	add_child(geometry)
 	add_child(actor_root)
 	actors.clear(); followers.clear(); enemies.clear(); npcs.clear(); targets.clear(); chest_models.clear()
+	encounters.clear()
+	population = null
 	boss_model = null
 	return_light = null
 	last_reveal = Vector2i(-9999,-9999)
@@ -212,15 +217,8 @@ func show_floor(data: Dictionary, metadata: Dictionary, progress: Dictionary, fr
 	chest_models = built.chests
 	var spawn = data.stairs if from_below and not data.stairs.is_empty() else data.entrance
 	spawn_party(Vector3(spawn[0]*tile_size,0,spawn[1]*tile_size))
-	for i in data.enemies.size():
-		if defeated.has(i): continue
-		var entry = data.enemies[i]
-		var info = Content.monster(meta.environment,entry.rank,entry.variant)
-		var actor = spawn_actor("enemy-%d" % i,Vector3(entry.pos[0]*tile_size,0,entry.pos[1]*tile_size),Color(info.color),info.shape)
-		actor.role = "enemy"
-		var brain = EnemyBrain.new()
-		brain.setup(actor.actor_id,actor,int(meta.seed)+int(data.index)*7919+i*101,int(entry.variant))
-		enemies[i] = brain
+	population = EncounterPopulation.new()
+	population.setup(meta,data,int(Time.get_ticks_usec())+int(meta.seed)+runtime_tick,tile_size)
 	for i in data.chests.size():
 		var p = data.chests[i].pos
 		add_target("chest",i,Vector3(p[0]*tile_size,0,p[1]*tile_size),"Open treasure chest",1.7)
@@ -255,10 +253,8 @@ func sync_entities() -> void:
 			lid.position = Vector3(0,0.8,0.15)
 	for i in enemies.keys():
 		if defeated.has(i):
-			var brain: EnemyBrain = enemies[i]
-			actors.erase(brain.id)
-			brain.actor.queue_free()
-			enemies.erase(i)
+			remove_enemy(i)
+			population.after_battle()
 	if is_instance_valid(boss_model):
 		boss_model.visible = not boss_dead
 	if is_instance_valid(return_light): return_light.visible = boss_dead
@@ -287,6 +283,7 @@ func _physics_process(delta: float) -> void:
 		followers[i].desired = offset.normalized()*minf(1,offset.length()/0.5) if offset.length() > 0.13 else Vector3.ZERO
 	if mode == "dungeon":
 		if authority_enabled:
+			update_population(delta)
 			for i in enemies.keys():
 				var brain: EnemyBrain = enemies[i]
 				var contacted = brain.update(delta,actors,nav)
@@ -364,10 +361,38 @@ func interact() -> void:
 func disengage(index: int) -> void:
 	encounter_grace = 3.0
 	if enemies.has(index): enemies[index].disengage()
+	if population != null: population.after_battle()
+
+func remove_enemy(id: int) -> void:
+	if not enemies.has(id): return
+	var brain: EnemyBrain = enemies[id]
+	actors.erase(brain.id)
+	brain.actor.queue_free()
+	enemies.erase(id)
+	encounters.erase(id)
+
+func update_population(delta: float) -> void:
+	if population == null: return
+	var players: Array = []
+	for actor in actors.values():
+		if actor.role == "player": players.append(actor)
+	var plan = population.update(delta,players,enemies,camera,nav)
+	for id in plan.despawn: remove_enemy(id)
+	for request in plan.spawn:
+		var id = next_encounter_id
+		next_encounter_id += 1
+		var entry = request.encounter
+		encounters[id] = entry
+		var info = Content.monster(meta.environment,entry.rank,entry.variant)
+		var actor = spawn_actor("enemy-%d" % id,request.position,Color(info.color),info.shape)
+		actor.role = "enemy"
+		var brain = EnemyBrain.new()
+		brain.setup(actor.actor_id,actor,population.rng.next(),entry.variant)
+		enemies[id] = brain
 
 func snapshot() -> Dictionary:
 	var actor_states: Array = []
 	var enemy_states: Array = []
 	for actor in actors.values(): actor_states.append({"id":actor.actor_id,"role":actor.role,"position":[actor.position.x,actor.position.y,actor.position.z]})
 	for brain in enemies.values(): enemy_states.append(brain.snapshot())
-	return {"tick":runtime_tick,"map_id":meta.get("id","hub"),"floor":floor_data.get("index",0),"actors":actor_states,"enemies":enemy_states,"opened":opened.duplicate(),"defeated":defeated.duplicate(),"boss_dead":boss_dead}
+	return {"tick":runtime_tick,"map_id":meta.get("id","hub"),"floor":floor_data.get("index",0),"actors":actor_states,"enemies":enemy_states,"encounters":encounters.duplicate(true),"next_encounter_id":next_encounter_id,"opened":opened.duplicate(),"defeated":defeated.duplicate(),"boss_dead":boss_dead}

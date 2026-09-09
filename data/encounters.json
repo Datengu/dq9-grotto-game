@@ -1,0 +1,13 @@
+{
+ "active_cap":4,
+ "density_per_square_metre":0.012,
+ "activity_radius":18.0,
+ "minimum_spawn_distance":9.0,
+ "maximum_spawn_distance":18.0,
+ "despawn_radius":26.0,
+ "minimum_enemy_spacing":2.6,
+ "spawn_interval":2.0,
+ "candidate_attempts":48,
+ "post_battle_refill_delay":7.0,
+ "avoid_visible_spawns":true
+}

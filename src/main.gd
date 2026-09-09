@@ -148,11 +148,12 @@ func open_chest(index: int) -> void:
 func begin_battle(index: int, boss: bool) -> void:
 	if boss and floor_progress[floor_index].boss_dead: return
 	if not boss and floor_progress[floor_index].defeated.has(index): return
+	if not boss and not world.encounters.has(index): return
 	battle_enemy_index = index
 	var enemy: Dictionary
 	if boss: enemy = Content.boss(active_map.meta.boss_tier)
 	else:
-		var encounter = floors[floor_index].enemies[index]
+		var encounter = world.encounters[index]
 		enemy = Content.monster(active_map.meta.environment,encounter.rank,encounter.variant)
 		if encounter.rare:
 			enemy.name = "Lumen " + enemy.name
