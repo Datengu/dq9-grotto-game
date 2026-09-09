@@ -22,9 +22,9 @@ func run():
 	migrated.add_map(GrottoGenerator.create(54321,120,120),"new graph chart")
 	check(migrated.maps.size() == 2,"Both generator versions coexist in collection")
 	migrated.maps[0].explored = {"0":{"44":true,"45":true}}
-	check(SaveStore.write(migrated,"res://test-output/migration-save.json"),"Write upgraded versioned save")
+	check(SaveStore.write(migrated,TestOutput.path("migration-save.json")),"Write upgraded versioned save")
 	var loaded = GameState.new()
-	check(SaveStore.read(loaded,"res://test-output/migration-save.json"),"Reload mixed-version collection")
+	check(SaveStore.read(loaded,TestOutput.path("migration-save.json")),"Reload mixed-version collection")
 	check(loaded.maps[0].explored == migrated.maps[0].explored,"Discovered fog survives save/load")
 	check(GrottoGenerator.generate(loaded.maps[0].meta) == structure,"Old layout survives upgraded save")
 	var world = ExplorationWorld.new(); root.add_child(world)

@@ -29,7 +29,7 @@ func run():
 					check(direct.size() == 2,"Open room movement has direct continuous path")
 					check(Vector2(direct[-1].x-b.x,direct[-1].z-b.z).length() < 0.01,"Arbitrary endpoint is preserved")
 				tested += 1
-	var file = FileAccess.open("res://test-output/navigation-report.json",FileAccess.WRITE)
+	var file = FileAccess.open(TestOutput.path("navigation-report.json"),FileAccess.WRITE)
 	file.store_string(JSON.stringify({"floors":tested,"failures":failures,"duration_ms":Time.get_ticks_msec()-start_time},"\t"))
 	print("NAVIGATION: ",tested," floors, ",failures.size()," failures")
 	quit(0 if failures.is_empty() else 1)

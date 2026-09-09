@@ -61,7 +61,31 @@ func run():
 	check(game.world.followers[0].position.distance_to(game.world.followers[1].position) > 0.7,"Followers retain spacing at rest")
 	check(game.world.camera.anchor.distance_to(leader.position) < 0.1,"Follow camera settles on leader")
 	check(not game.world.nav.visible_between(cell_target([9,5]),cell_target([11,5])),"Walls block enemy detection")
-	check(game.world.nav.path(cell_target([9,5]),cell_target([11,5])).size() > 10,"Enemy route follows opening around geometry")
+	var detour = game.world.nav.path(cell_target([9,5]),cell_target([11,5]))
+	var route_length = 0.0
+	for i in range(1,detour.size()): route_length += detour[i-1].distance_to(detour[i])
+	check(detour.size() > 2 and route_length > 20 and flat_distance(detour[-1],cell_target([11,5])) < 0.3,"Enemy surface route follows opening around geometry")
+	# Drive the real brain/body along that detour, not just the path query.
+	var walker = game.world.spawn_actor("route-enemy",cell_target([9,5]),Color("ac9874"),"wolf")
+	walker.role = "enemy"
+	var roaming_brain = EnemyBrain.new(); roaming_brain.setup(walker.actor_id,walker,64,1)
+	var endpoint = game.world.nav.closest(cell_target([11,5])+Vector3(0.17,0,0.31))
+	roaming_brain.grace = 999; roaming_brain.mode = "wander"
+	roaming_brain.route = game.world.nav.path(walker.position,endpoint)
+	var largest_step = 0.0; var non_grid_samples = 0; var moving_samples = 0
+	for tick in 1400:
+		var before = walker.position
+		roaming_brain.update(1.0/60.0,game.world.actors,game.world.nav)
+		await physics_frame
+		var step = flat_distance(before,walker.position)
+		largest_step = maxf(largest_step,step)
+		if step > 0.001:
+			moving_samples += 1
+			if absf(walker.position.x/1.8-roundf(walker.position.x/1.8)) > 0.02 and absf(walker.position.z/1.8-roundf(walker.position.z/1.8)) > 0.02: non_grid_samples += 1
+		if roaming_brain.mode == "idle": break
+	check(flat_distance(walker.position,endpoint) < 0.3,"Enemy body follows a wall detour to an arbitrary endpoint")
+	check(largest_step < 0.1 and moving_samples > 100 and non_grid_samples > moving_samples/2,"Enemy motion is continuous and occupies space between grid axes")
+	game.world.actors.erase(walker.actor_id); walker.queue_free()
 	var actor = game.world.spawn_actor("test-enemy",cell_target([15,8]),Color("ac9874"),"wolf")
 	actor.role = "enemy"
 	var brain = EnemyBrain.new(); brain.setup(actor.actor_id,actor,23,1); brain.grace = 0
@@ -84,7 +108,7 @@ func run():
 	for i in 15: await physics_frame
 	check(not game.world.camera.occlusion.faded.is_empty(),"Occluding scenery fades to keep leader visible")
 	await capture("camera-occlusion-3d")
-	var file = FileAccess.open("res://test-output/exploration-report.json",FileAccess.WRITE)
+	var file = FileAccess.open(TestOutput.path("exploration-report.json"),FileAccess.WRITE)
 	file.store_string(JSON.stringify({"failures":failures,"physics_movement_frames":frames_walked},"\t"))
 	print("EXPLORATION: ",failures.size()," failures")
 	game.queue_free(); await process_frame

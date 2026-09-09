@@ -3,8 +3,9 @@ config_version=5
 
 [application]
 config/name="Lantern Atlas"
-config/version="0.2.0"
+config/version="0.3.0"
 run/main_scene="res://src/main.tscn"
+run/main_scene.foundation_validation="res://tests/validation_entry.tscn"
 config/features=PackedStringArray("4.6", "GL Compatibility")
 config/use_custom_user_dir=true
 config/custom_user_dir_name="Lantern Atlas"

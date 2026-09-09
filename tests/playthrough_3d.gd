@@ -14,7 +14,7 @@ func capture(name: String):
 	if not captures: return
 	for i in 4: await process_frame
 	await RenderingServer.frame_post_draw
-	root.get_texture().get_image().save_png("res://test-output/"+name+".png")
+	check(root.get_texture().get_image().save_png(TestOutput.path(name+".png")) == OK,"Capture "+name)
 func click_text(text: String, node: Node = null) -> bool:
 	if node == null: node = game.ui.root
 	if node is Button and text in node.text and not node.disabled:
@@ -126,15 +126,18 @@ func run():
 	var original = GrottoGenerator.generate(meta)
 	check(click_text("Begin expedition"),"Expedition through atlas UI")
 	check(game.floors == original,"Persistent seed generates expedition")
+	game.world.population.rng = SeedRng.new(2007)
+	check(game.world.enemies.is_empty(),"Floor starts without pre-instantiating fixed enemies")
 	await capture("dungeon-3d")
-	var initial_positions: Array = []
-	for brain in game.world.enemies.values(): initial_positions.append(brain.actor.position)
+	for i in 420:
+		await physics_frame
+		if not game.world.enemies.is_empty(): break
+	var initial_positions: Dictionary = {}
+	for id in game.world.enemies: initial_positions[id] = game.world.enemies[id].actor.position
 	for i in 180: await physics_frame
 	var roaming = false
-	var counter = 0
-	for brain in game.world.enemies.values():
-		if brain.actor.position.distance_to(initial_positions[counter]) > 0.3: roaming = true
-		counter += 1
+	for id in game.world.enemies:
+		if initial_positions.has(id) and game.world.enemies[id].actor.position.distance_to(initial_positions[id]) > 0.3: roaming = true
 	check(roaming,"Visible enemies physically wander")
 	var chest_count = 0
 	for index in int(meta.depth):
@@ -185,11 +188,11 @@ func run():
 	check(entry.explored == explored and not game.world.discovered.is_empty(),"Revisit keeps explored map")
 	check(game.floor_progress[0].opened.is_empty() and game.floor_progress[0].defeated.is_empty(),"Fresh expedition replenishes treasure and encounters")
 	game.return_home()
-	check(SaveStore.write(game.state,"res://test-output/playthrough-save.json"),"Save complete expedition")
+	check(SaveStore.write(game.state,TestOutput.path("playthrough-save.json")),"Save complete expedition")
 	var loaded = GameState.new()
-	check(SaveStore.read(loaded,"res://test-output/playthrough-save.json"),"Reload save")
+	check(SaveStore.read(loaded,TestOutput.path("playthrough-save.json")),"Reload save")
 	check(loaded.maps.size() == game.state.maps.size() and loaded.maps[0].explored == explored,"Reload retains atlas, fog and completion")
-	var file = FileAccess.open("res://test-output/playthrough-report.json",FileAccess.WRITE)
+	var file = FileAccess.open(TestOutput.path("playthrough-report.json"),FileAccess.WRITE)
 	file.store_string(JSON.stringify({"failures":failures,"physics_movement_frames":frames_walked,"battles":battles,"maps":game.state.maps.size(),"level":game.state.player.level,"hp":game.state.player.hp,"chasing":chasing_seen,"captures":captures},"\t"))
 	print("PLAYTHROUGH: ",failures.size()," failures, ",frames_walked," movement frames, ",battles," battles")
 	game.queue_free()
